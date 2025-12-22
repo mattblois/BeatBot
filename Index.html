@@ -60,15 +60,9 @@
       <div id="brief" class="p-8 max-w-7xl mx-auto hidden">
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-3xl font-bold text-gray-900">Daily Brief</h2>
-          <button id="generate-brief" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl">Generate</button>
         </div>
-        <div id="brief-content" class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-12 border border-indigo-100 min-h-[500px] shadow-2xl">
-          <div class="text-center py-20">
-            <div class="w-24 h-24 bg-indigo-100 rounded-2xl mx-auto mb-6 flex items-center justify-center">
-              <span class="text-3xl">📰</span>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-2">Ready for brief</h3>
-          </div>
+        <div id="brief-content" class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-12 border border-indigo-100 min-h-[200px] shadow-2xl">
+          <p class="text-gray-600">Brief UI coming next.</p>
         </div>
       </div>
 
@@ -102,14 +96,14 @@
 
     // Tabs
     document.querySelectorAll('[data-tab]').forEach(btn => {
-      btn.onclick = () => {
+      btn.addEventListener('click', () => {
         document.querySelectorAll('[data-tab]').forEach(b => {
           b.classList.remove('bg-indigo-100','text-indigo-700','ring-2','ring-indigo-500');
         });
         btn.classList.add('bg-indigo-100','text-indigo-700','ring-2','ring-indigo-500');
         document.querySelectorAll('#rolodex,#brief,#settings').forEach(tab => tab.classList.add('hidden'));
         document.getElementById(btn.dataset.tab).classList.remove('hidden');
-      };
+      });
     });
 
     async function apiCall(action, params = {}) {
@@ -129,23 +123,33 @@
           tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500">No contacts. Add one!</td></tr>';
           return;
         }
-        tbody.innerHTML = contacts.map(c => `
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 font-medium text-gray-900">${c.Name || ''}</td>
-            <td class="px-6 py-4 text-gray-700">${c.Organization || ''}</td>
+        tbody.innerHTML = '';
+        contacts.forEach(c => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-gray-50';
+
+          const name = c.Name || '';
+          const org = c.Organization || '';
+
+          tr.innerHTML = `
+            <td class="px-6 py-4 font-medium text-gray-900">${name}</td>
+            <td class="px-6 py-4 text-gray-700">${org}</td>
             <td class="px-6 py-4">${c.Role || 'Unknown'}</td>
             <td class="px-6 py-4">
               <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-full">${c.SourceType || ''}</span>
             </td>
             <td class="px-6 py-4 text-sm text-gray-500">${c.DateAdded ? new Date(c.DateAdded).toLocaleDateString() : ''}</td>
             <td class="px-6 py-4">
-              <button class="enrich-btn text-indigo-600 hover:text-indigo-900 text-sm font-medium mr-3" data-name="${(c.Name || '').replace(/"/g,'&quot;')}" data-org="${(c.Organization || '').replace(/"/g,'&quot;')}">Enrich</button>
+              <button class="enrich-btn text-indigo-600 hover:text-indigo-900 text-sm font-medium mr-3">Enrich</button>
               <button class="text-green-600 hover:text-green-900 text-sm font-medium">Edit</button>
             </td>
-          </tr>
-        `).join('');
-        document.querySelectorAll('.enrich-btn').forEach(btn => {
-          btn.onclick = () => enrichContact(btn.dataset.name, btn.dataset.org);
+          `;
+
+          tr.querySelector('.enrich-btn').addEventListener('click', () => {
+            enrichContact(name, org);
+          });
+
+          tbody.appendChild(tr);
         });
       } catch (e) {
         status.textContent = 'API problem: ' + e.message;
@@ -165,7 +169,7 @@ Source: ${result.sourceType}`);
       }
     }
 
-    document.getElementById('add-contact').onclick = async () => {
+    document.getElementById('add-contact').addEventListener('click', async () => {
       const name = prompt('Name:');
       const org = prompt('Organization:');
       if (name && org) {
@@ -176,24 +180,9 @@ Source: ${result.sourceType}`);
           alert('Add failed: ' + e.message);
         }
       }
-    };
+    });
 
-    document.getElementById('generate-brief').onclick = async () => {
-      const briefContent = document.getElementById('brief-content');
-      briefContent.innerHTML =
-        '<div class="text-center py-20"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div><p>Loading...</p></div>';
-      try {
-        const brief = await apiCall('generateBrief');
-        briefContent.innerHTML =
-          `<div class="space-y-4 prose max-w-none">${brief.content.replace(/
-/g,'<br>')}</div>`;
-      } catch (e) {
-        briefContent.innerHTML =
-          '<div class="text-center py-20 text-red-500">Failed to generate brief</div>';
-      }
-    };
-
-    document.getElementById('save-beats').onclick = async () => {
+    document.getElementById('save-beats').addEventListener('click', async () => {
       const beats = document.getElementById('beats').value;
       try {
         await apiCall('saveBeats', { beats });
@@ -203,7 +192,7 @@ Source: ${result.sourceType}`);
       } catch (e) {
         alert('Save failed: ' + e.message);
       }
-    };
+    });
 
     // Initial load
     loadContacts();
