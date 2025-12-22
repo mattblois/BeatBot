@@ -9,14 +9,29 @@
   <div id="auth" class="flex items-center justify-center min-h-screen p-4">
     <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full">
       <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">BeatBot</h1>
-      <input id="password" type="password" placeholder="beatbot2025" class="w-full p-4 border border-gray-300 rounded-lg mb-6 focus:ring-2 focus:ring-indigo-500">
+      <input id="password" type="password" placeholder="beatbot2025" class="w-full p-4 border border-gray-300 rounded-lg mb-3 focus:ring-2 focus:ring-indigo-500">
       <button id="login" class="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700">Enter</button>
-      <p id="error" class="mt-4 text-sm text-red-600 hidden"></p>
+      <p id="error" class="mt-3 text-sm text-red-600 hidden"></p>
     </div>
   </div>
 
   <div id="dashboard" class="hidden">
-    <h2 style="padding:16px;font-family:sans-serif;">Logged in! (simple test)</h2>
+    <nav class="bg-white shadow-sm border-b">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="flex justify-between items-center h-16">
+          <h1 class="text-2xl font-bold text-gray-900">BeatBot</h1>
+          <div class="flex items-center space-x-4">
+            <span id="user-email" class="text-sm bg-gray-100 px-3 py-1 rounded-full"></span>
+            <button id="logout" class="text-sm text-gray-700 hover:text-gray-900">Logout</button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto p-6">
+      <h2 class="text-xl font-semibold mb-4">You are logged in.</h2>
+      <p id="api-status" class="text-sm text-gray-700"></p>
+    </main>
   </div>
 
   <script>
@@ -27,10 +42,8 @@
       try {
         const res = await fetch(API_BASE + '?action=getContacts&user=' + encodeURIComponent(USER_EMAIL));
         const text = await res.text();
-        console.log('API status', res.status, 'body', text);
         return { ok: res.ok, status: res.status, body: text };
       } catch (e) {
-        console.log('API error', e);
         return { ok: false, error: e.message };
       }
     }
@@ -46,17 +59,26 @@
       }
 
       err.classList.add('hidden');
-      // Try API once before showing dashboard
-      const result = await testApiOnce();
 
-      if (!result.ok) {
-        err.textContent = 'API problem: ' + (result.error || ('status ' + result.status));
-        err.classList.remove('hidden');
-        return;
-      }
-
+      // Show dashboard immediately on correct password
+      document.getElementById('user-email').textContent = USER_EMAIL;
       document.getElementById('auth').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
+
+      // Then test API and show status text (for debugging only)
+      const result = await testApiOnce();
+      const apiStatus = document.getElementById('api-status');
+      if (result.ok) {
+        apiStatus.textContent = 'API OK: ' + result.body;
+      } else {
+        apiStatus.textContent = 'API problem: ' + (result.error || ('status ' + result.status));
+      }
+    };
+
+    document.getElementById('logout').onclick = () => {
+      document.getElementById('password').value = '';
+      document.getElementById('dashboard').classList.add('hidden');
+      document.getElementById('auth').classList.remove('hidden');
     };
   </script>
 </body>
