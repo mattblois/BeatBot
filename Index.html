@@ -60,6 +60,7 @@
       <div id="brief" class="p-8 max-w-7xl mx-auto hidden">
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-3xl font-bold text-gray-900">Daily Brief</h2>
+          <button id="generate-brief" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl">Generate</button>
         </div>
         <div id="brief-content" class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-12 border border-indigo-100 min-h-[200px] shadow-2xl">
           <p class="text-gray-600">Brief UI coming next.</p>
@@ -91,7 +92,7 @@
   </div>
 
   <script>
-    const API_BASE = '/api';
+    const API_BASE = '/api'; // Netlify will proxy this
     const USER_EMAIL = 'mattblois@gmail.com';
 
     // Tabs
@@ -107,9 +108,11 @@
     });
 
     async function apiCall(action, params = {}) {
-      const urlParams = new URLSearchParams({ action, user: USER_EMAIL });
-      Object.entries(params).forEach(([k,v]) => urlParams.append(k, v));
-      const res = await fetch(`${API_BASE}?${urlParams.toString()}`);
+      const url = new URL(window.location.origin + API_BASE);
+      url.searchParams.set('action', action);
+      url.searchParams.set('user', USER_EMAIL);
+      Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+      const res = await fetch(url.toString());
       return res.json();
     }
 
@@ -129,7 +132,7 @@
           tr.className = 'hover:bg-gray-50';
 
           const name = c.Name || '';
-          const org = c.Organization || '';
+          const org  = c.Organization || '';
 
           tr.innerHTML = `
             <td class="px-6 py-4 font-medium text-gray-900">${name}</td>
@@ -171,7 +174,7 @@ Source: ${result.sourceType}`);
 
     document.getElementById('add-contact').addEventListener('click', async () => {
       const name = prompt('Name:');
-      const org = prompt('Organization:');
+      const org  = prompt('Organization:');
       if (name && org) {
         try {
           await apiCall('addContact', { name, org });
