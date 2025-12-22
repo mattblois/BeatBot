@@ -36,7 +36,6 @@
       </div>
 
       <main class="flex-1 overflow-auto">
-        <!-- Rolodex -->
         <div id="rolodex" class="p-8 max-w-7xl mx-auto">
           <div class="flex justify-between items-center mb-8">
             <h2 class="text-3xl font-bold text-gray-900">Rolodex</h2>
@@ -66,7 +65,6 @@
           </div>
         </div>
 
-        <!-- Brief -->
         <div id="brief" class="p-8 max-w-7xl mx-auto hidden">
           <div class="flex justify-between items-center mb-8">
             <h2 class="text-3xl font-bold text-gray-900">Daily Brief</h2>
@@ -82,7 +80,6 @@
           </div>
         </div>
 
-        <!-- Settings -->
         <div id="settings" class="p-8 max-w-7xl mx-auto hidden min-h-screen">
           <h2 class="text-3xl font-bold text-gray-900 mb-8">Settings</h2>
           <div class="bg-white rounded-2xl p-12 shadow-xl max-w-2xl">
@@ -108,89 +105,103 @@
   </div>
 
   <script>
-    const API_BASE = '/api';  // Netlify proxy → Apps Script
+    const API_BASE = '/api';
     const USER_EMAIL = 'mattblois@gmail.com';
-    let currentUser = USER_EMAIL;
 
-    // Login
-    document.getElementById('login').onclick = () => {
+    document.getElementById('login').onclick = async () => {
       if (document.getElementById('password').value === 'beatbot2025') {
-        document.getElementById('user-email').textContent = currentUser;
+        document.getElementById('user-email').textContent = USER_EMAIL;
         document.getElementById('auth').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
         document.querySelector('[data-tab="rolodex"]').click();
-        loadContacts();
-      } else alert('Wrong password');
+        await loadContacts();
+      } else {
+        alert('Wrong password');
+      }
     };
 
-    // Tabs
     document.querySelectorAll('[data-tab]').forEach(btn => {
       btn.onclick = () => {
-        document.querySelectorAll('[data-tab]').forEach(b => 
-          b.classList.remove('bg-indigo-100','text-indigo-700','ring-2','ring-indigo-500'));
-        btn.classList.add('bg-indigo-100','text-indigo-700','ring-2','ring-indigo-500');
-        document.querySelectorAll('#rolodex,#brief,#settings').forEach(tab => tab.classList.add('hidden'));
+        document.querySelectorAll('[data-tab]').forEach(b => {
+          b.classList.remove('bg-indigo-100', 'text-indigo-700', 'ring-2', 'ring-indigo-500');
+        });
+        btn.classList.add('bg-indigo-100', 'text-indigo-700', 'ring-2', 'ring-indigo-500');
+        document.querySelectorAll('#rolodex, #brief, #settings').forEach(tab => {
+          tab.classList.add('hidden');
+        });
         document.getElementById(btn.dataset.tab).classList.remove('hidden');
       };
     });
 
-    // API Calls
     async function apiCall(action, params = {}) {
-      const url = `${API_BASE}?action=${action}&user=${USER_EMAIL}` + 
-                  Object.keys(params).map(k => `&${k}=${encodeURIComponent(params[k])}`).join('');
-      const res = await fetch(url);
-      return res.json();
+      const urlParams = new URLSearchParams({ action, user: USER_EMAIL });
+      Object.entries(params).forEach(([key, value]) => {
+        urlParams.append(key, value);
+      });
+      const url = `${API_BASE}?${urlParams}`;
+      const response = await fetch(url);
+      return response.json();
     }
 
     async function loadContacts() {
       try {
         const contacts = await apiCall('getContacts');
         const tbody = document.getElementById('contacts');
-        if (!contacts.length) {
+        if (!contacts || contacts.length === 0) {
           tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500">No contacts. Add one!</td></tr>';
           return;
         }
-        tbody.innerHTML = contacts.map(c => `
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 font-medium text-gray-900">${c.Name || ''}</td>
-            <td class="px-6 py-4 text-gray-700">${c.Organization || ''}</td>
-            <td class="px-6 py-4">${c.Role || 'Unknown'}</td>
-            <td class="px-6 py-4">
-              <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-full">${c.SourceType || ''}</span>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-500">${c.DateAdded ? new Date(c.DateAdded).toLocaleDateString() : ''}</td>
-            <td class="px-6 py-4">
-              <button onclick="enrichContact('${c.Name || ''}','${c.Organization || ''}')" 
-                      class="text-indigo-600 hover:text-indigo-900 text-sm font-medium mr-3">Enrich</button>
-              <button class="text-green-600 hover:text-green-900 text-sm font-medium">Edit</button>
-            </td>
-          </tr>
-        `).join('');
+        tbody.innerHTML = contacts.map(contact => {
+          return `
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 font-medium text-gray-900">${contact.Name || ''}</td>
+              <td class="px-6 py-4 text-gray-700">${contact.Organization || ''}</td>
+              <td class="px-6 py-4">${contact.Role || 'Unknown'}</td>
+              <td class="px-6 py-4">
+                <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-full">${contact.SourceType || ''}</span>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500">${contact.DateAdded ? new Date(contact.DateAdded).toLocaleDateString() : ''}</td>
+              <td class="px-6 py-4">
+                <button onclick="enrichContact('${contact.Name || ''}','${contact.Organization || ''}')" 
+                        class="text-indigo-600 hover:text-indigo-900 text-sm font-medium mr-3">Enrich</button>
+                <button class="text-green-600 hover:text-green-900 text-sm font-medium">Edit</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
       } catch(e) {
+        console.error(e);
         document.getElementById('contacts').innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-red-500">Error loading contacts</td></tr>';
       }
     }
 
     window.enrichContact = async (name, org) => {
       try {
-        const result = await apiCall('enrichContact', {name, org});
+        const result = await apiCall('enrichContact', { name, org });
         alert(`Role: ${result.role}
 Source: ${result.sourceType}`);
         loadContacts();
-      } catch(e) { alert('Enrich failed'); }
+      } catch(e) {
+        alert('Enrich failed: ' + e.message);
+      }
     };
 
-    document.getElementById('add-contact').onclick = () => {
+    document.getElementById('add-contact').onclick = async () => {
       const name = prompt('Name:');
       const org = prompt('Organization:');
       if (name && org) {
-        apiCall('addContact', {name, org}).then(() => loadContacts());
+        try {
+          await apiCall('addContact', { name, org });
+          loadContacts();
+        } catch(e) {
+          alert('Add failed');
+        }
       }
     };
 
     document.getElementById('generate-brief').onclick = async () => {
       const briefContent = document.getElementById('brief-content');
-      briefContent.innerHTML = '<div class="text-center py-20"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>Loading...</div>';
+      briefContent.innerHTML = '<div class="text-center py-20"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div><p>Loading...</p></div>';
       try {
         const brief = await apiCall('generateBrief');
         briefContent.innerHTML = `<div class="space-y-4 prose max-w-none">${brief.content.replace(/
@@ -202,9 +213,14 @@ Source: ${result.sourceType}`);
 
     document.getElementById('save-beats').onclick = async () => {
       const beats = document.getElementById('beats').value;
-      await apiCall('saveBeats', {beats});
-      document.getElementById('beats-status').classList.remove('hidden');
-      setTimeout(() => document.getElementById('beats-status').classList.add('hidden'), 3000);
+      try {
+        await apiCall('saveBeats', { beats });
+        const status = document.getElementById('beats-status');
+        status.classList.remove('hidden');
+        setTimeout(() => status.classList.add('hidden'), 3000);
+      } catch(e) {
+        alert('Save failed');
+      }
     };
   </script>
 </body>
