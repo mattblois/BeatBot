@@ -108,6 +108,13 @@
     const API_BASE = '/api';
     const USER_EMAIL = 'mattblois@gmail.com';
 
+    // Safe onclick handler generator
+    function createEnrichHandler(name, org) {
+      return function() {
+        enrichContact(name, org);
+      };
+    }
+
     document.getElementById('login').onclick = async () => {
       if (document.getElementById('password').value === 'beatbot2025') {
         document.getElementById('user-email').textContent = USER_EMAIL;
@@ -152,6 +159,8 @@
           return;
         }
         tbody.innerHTML = contacts.map(contact => {
+          const safeName = (contact.Name || '').replace(/'/g, "\\'");
+          const safeOrg = (contact.Organization || '').replace(/'/g, "\\'");
           return `
             <tr class="hover:bg-gray-50">
               <td class="px-6 py-4 font-medium text-gray-900">${contact.Name || ''}</td>
@@ -162,13 +171,21 @@
               </td>
               <td class="px-6 py-4 text-sm text-gray-500">${contact.DateAdded ? new Date(contact.DateAdded).toLocaleDateString() : ''}</td>
               <td class="px-6 py-4">
-                <button onclick="enrichContact('${contact.Name || ''}','${contact.Organization || ''}')" 
-                        class="text-indigo-600 hover:text-indigo-900 text-sm font-medium mr-3">Enrich</button>
+                <button class="enrich-btn text-indigo-600 hover:text-indigo-900 text-sm font-medium mr-3" data-name="${safeName}" data-org="${safeOrg}">Enrich</button>
                 <button class="text-green-600 hover:text-green-900 text-sm font-medium">Edit</button>
               </td>
             </tr>
           `;
         }).join('');
+        
+        // Add event listeners after table render
+        document.querySelectorAll('.enrich-btn').forEach(btn => {
+          btn.onclick = () => {
+            const name = btn.dataset.name;
+            const org = btn.dataset.org;
+            enrichContact(name, org);
+          };
+        });
       } catch(e) {
         console.error(e);
         document.getElementById('contacts').innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-red-500">Error loading contacts</td></tr>';
