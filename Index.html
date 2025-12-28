@@ -1,387 +1,320 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>BeatBot CRM</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8">
+  <title>BeatBot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { primary: '#1f2937', secondary: '#3b82f6' } } }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Login Screen -->
+  <div id="loginScreen" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+    <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full mx-4">
+      <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">🔒 BeatBot</h1>
+      <div class="space-y-4">
+        <input id="username" type="text" placeholder="Username" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <input id="password" type="password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <button onclick="login()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">Login</button>
+      </div>
+      <p id="loginError" class="text-red-500 mt-4 hidden">Invalid credentials</p>
+    </div>
+  </div>
 
-    <!-- Tailwind via CDN (fine for prototype; switch to build step later) [web:662] -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <script>
-      // ------- CONFIG -------
-
-      // Netlify redirect points /api to your Apps Script web app.
-      const API_BASE = "/api";
-
-      // Hard-coded users: username + password + email used in the sheet.
-      // Add/remove users here as needed.
-      const USERS = [
-        { username: "matt",   password: "beatbot1", email: "mattblois@gmail.com" },
-        { username: "sara",   password: "beatbot2", email: "sara@example.com" },
-        { username: "chris",  password: "beatbot3", email: "chris@example.com" },
-        { username: "editor", password: "beatbot4", email: "editor@example.com" }
-      ];
-
-      let CURRENT_USER = null;
-
-      // ------- GENERIC API HELPER -------
-
-      async function apiCall(action, params = {}) {
-        if (!CURRENT_USER) {
-          throw new Error("Not logged in");
-        }
-
-        const url = new URL(window.location.origin + API_BASE);
-        url.searchParams.set("action", action);
-        url.searchParams.set("user", CURRENT_USER.email);
-
-        Object.entries(params).forEach(([key, value]) => {
-          url.searchParams.set(key, value);
-        });
-
-        const res = await fetch(url.toString(), {
-          method: "GET"
-        });
-
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(`API error: ${res.status} ${text}`);
-        }
-        return res.json();
-      }
-
-      // ------- LOGIN LOGIC -------
-
-      function handleLogin(event) {
-        event.preventDefault();
-
-        const usernameInput = document.getElementById("login-username");
-        const passwordInput = document.getElementById("login-password");
-        const errorEl = document.getElementById("login-error");
-
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value;
-
-        const user = USERS.find(
-          (u) => u.username === username && u.password === password
-        );
-
-        if (!user) {
-          errorEl.textContent = "Invalid username or password.";
-          errorEl.classList.remove("hidden");
-          return;
-        }
-
-        CURRENT_USER = user;
-        errorEl.classList.add("hidden");
-        passwordInput.value = "";
-
-        document.getElementById("current-user-label").textContent =
-          user.username + " (" + user.email + ")";
-
-        // Hide auth, show dashboard
-        document.getElementById("auth").classList.add("hidden");
-        document.getElementById("dashboard").classList.remove("hidden");
-
-        loadContacts();
-      }
-
-      function handleLogout() {
-        CURRENT_USER = null;
-        document.getElementById("dashboard").classList.add("hidden");
-        document.getElementById("auth").classList.remove("hidden");
-        document.getElementById("contacts-body").innerHTML = "";
-        document.getElementById("login-username").value = "";
-        document.getElementById("login-password").value = "";
-      }
-
-      // ------- CONTACTS UI -------
-
-      async function loadContacts() {
-        const tbody = document.getElementById("contacts-body");
-        const statusEl = document.getElementById("status");
-        tbody.innerHTML = "";
-        statusEl.textContent = "Loading contacts...";
-
-        try {
-          const data = await apiCall("getContacts");
-          // Expecting an array of contact objects or rows; adjust to your real shape.
-          // Example: [{name, outlet, beat, email, twitter, notes}, ...]
-          if (!Array.isArray(data)) {
-            statusEl.textContent = "Unexpected response from server.";
-            return;
-          }
-
-          data.forEach((row) => {
-            const tr = document.createElement("tr");
-            tr.className = "border-b border-gray-200";
-
-            const name = row.name || row.Name || "";
-            const outlet = row.outlet || row.Outlet || "";
-            const beat = row.beat || row.Beat || "";
-            const email = row.email || row.Email || "";
-            const twitter = row.twitter || row.Twitter || "";
-            const notes = row.notes || row.Notes || "";
-
-            tr.innerHTML = `
-              <td class="px-3 py-2 text-sm text-gray-900">${name}</td>
-              <td class="px-3 py-2 text-sm text-gray-500">${outlet}</td>
-              <td class="px-3 py-2 text-sm text-gray-500">${beat}</td>
-              <td class="px-3 py-2 text-sm text-blue-600">${email}</td>
-              <td class="px-3 py-2 text-sm text-blue-600">${twitter}</td>
-              <td class="px-3 py-2 text-sm text-gray-500">${notes}</td>
-            `;
-            tbody.appendChild(tr);
-          });
-
-          statusEl.textContent =
-            data.length === 0 ? "No contacts yet for this user." : "";
-        } catch (err) {
-          console.error(err);
-          statusEl.textContent = "Failed to load contacts.";
-        }
-      }
-
-      async function handleAddContact(event) {
-        event.preventDefault();
-        const form = event.target;
-        const statusEl = document.getElementById("status");
-
-        const payload = {
-          name: form["name"].value,
-          outlet: form["outlet"].value,
-          beat: form["beat"].value,
-          email: form["email"].value,
-          twitter: form["twitter"].value,
-          notes: form["notes"].value
-        };
-
-        statusEl.textContent = "Saving contact...";
-
-        try {
-          await apiCall("addContact", payload);
-          statusEl.textContent = "Saved.";
-          form.reset();
-          loadContacts();
-        } catch (err) {
-          console.error(err);
-          statusEl.textContent = "Failed to save contact.";
-        }
-      }
-
-      window.addEventListener("DOMContentLoaded", () => {
-        document
-          .getElementById("login-form")
-          .addEventListener("submit", handleLogin);
-        document
-          .getElementById("logout-btn")
-          .addEventListener("click", handleLogout);
-        document
-          .getElementById("add-contact-form")
-          .addEventListener("submit", handleAddContact);
-      });
-    </script>
-  </head>
-
-  <body class="min-h-screen bg-slate-900 text-white">
-    <!-- AUTH SCREEN -->
-    <div
-      id="auth"
-      class="min-h-screen flex items-center justify-center px-4"
-    >
-      <div class="w-full max-w-md bg-slate-800 rounded-xl shadow-lg p-8">
-        <h1 class="text-2xl font-semibold mb-6 text-center">
-          BeatBot Login
-        </h1>
-
-        <form id="login-form" class="space-y-4">
-          <div>
-            <label
-              for="login-username"
-              class="block text-sm font-medium text-gray-200"
-              >Username</label
-            >
-            <input
-              id="login-username"
-              type="text"
-              required
-              class="mt-1 block w-full rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="matt"
-            />
-          </div>
-
-          <div>
-            <label
-              for="login-password"
-              class="block text-sm font-medium text-gray-200"
-              >Password</label
-            >
-            <input
-              id="login-password"
-              type="password"
-              required
-              class="mt-1 block w-full rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <p
-            id="login-error"
-            class="hidden text-sm text-red-400"
-          ></p>
-
-          <button
-            type="submit"
-            class="w-full mt-4 inline-flex justify-center rounded-md bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          >
-            Sign in
-          </button>
-
-          <p class="mt-3 text-xs text-gray-400 text-center">
-            2–4 accounts are hard‑coded in the app config for now.
-          </p>
-        </form>
+  <!-- Main App -->
+  <div id="app" class="hidden min-h-screen bg-gray-50">
+    <!-- Top Bar -->
+    <div class="bg-white border-b border-gray-200 px-6 py-4">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-2xl font-bold text-gray-900">BeatBot</h1>
+          <span id="userDisplay" class="text-sm text-gray-500"></span>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button onclick="logout()" class="text-sm text-gray-500 hover:text-gray-900">Logout</button>
+        </div>
       </div>
     </div>
 
-    <!-- DASHBOARD -->
-    <div id="dashboard" class="hidden min-h-screen">
-      <header
-        class="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-900/80 backdrop-blur"
-      >
-        <div>
-          <h1 class="text-xl font-semibold">BeatBot CRM</h1>
-          <p class="text-xs text-gray-400">
-            Signed in as
-            <span id="current-user-label" class="font-mono"></span>
-          </p>
-        </div>
-        <button
-          id="logout-btn"
-          class="rounded-md border border-slate-600 px-3 py-1.5 text-xs font-medium text-gray-200 hover:bg-slate-800"
-        >
-          Log out
-        </button>
-      </header>
-
-      <main class="px-4 py-4 lg:px-8 lg:py-6 space-y-6">
-        <!-- Status -->
-        <div
-          id="status"
-          class="text-sm text-gray-300"
-        ></div>
-
-        <!-- Add contact form -->
-        <section
-          class="bg-slate-800 border border-slate-700 rounded-xl p-4 lg:p-5"
-        >
-          <h2 class="text-sm font-semibold mb-3">
-            Add contact
-          </h2>
-          <form
-            id="add-contact-form"
-            class="grid grid-cols-1 md:grid-cols-3 gap-3"
-          >
-            <div>
-              <label
-                class="block text-xs font-medium text-gray-300"
-                >Name</label
-              >
-              <input
-                name="name"
-                class="mt-1 w-full rounded-md border border-slate-600 bg-slate-900 px-2 py-1.5 text-xs text-gray-100"
-                required
-              />
-            </div>
-            <div>
-              <label
-                class="block text-xs font-medium text-gray-300"
-                >Outlet</label
-              >
-              <input
-                name="outlet"
-                class="mt-1 w-full rounded-md border border-slate-600 bg-slate-900 px-2 py-1.5 text-xs text-gray-100"
-              />
-            </div>
-            <div>
-              <label
-                class="block text-xs font-medium text-gray-300"
-                >Beat</label
-              >
-              <input
-                name="beat"
-                class="mt-1 w-full rounded-md border border-slate-600 bg-slate-900 px-2 py-1.5 text-xs text-gray-100"
-              />
-            </div>
-            <div>
-              <label
-                class="block text-xs font-medium text-gray-300"
-                >Email</label
-              >
-              <input
-                type="email"
-                name="email"
-                class="mt-1 w-full rounded-md border border-slate-600 bg-slate-900 px-2 py-1.5 text-xs text-gray-100"
-              />
-            </div>
-            <div>
-              <label
-                class="block text-xs font-medium text-gray-300"
-                >Twitter</label
-              >
-              <input
-                name="twitter"
-                class="mt-1 w-full rounded-md border border-slate-600 bg-slate-900 px-2 py-1.5 text-xs text-gray-100"
-              />
-            </div>
-            <div>
-              <label
-                class="block text-xs font-medium text-gray-300"
-                >Notes</label
-              >
-              <input
-                name="notes"
-                class="mt-1 w-full rounded-md border border-slate-600 bg-slate-900 px-2 py-1.5 text-xs text-gray-100"
-              />
-            </div>
-            <div class="md:col-span-3 flex justify-end items-end">
-              <button
-                type="submit"
-                class="inline-flex items-center rounded-md bg-indigo-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-600"
-              >
-                Add contact
-              </button>
-            </div>
-          </form>
-        </section>
-
-        <!-- Contacts table -->
-        <section
-          class="bg-slate-800 border border-slate-700 rounded-xl p-4 lg:p-5"
-        >
-          <h2 class="text-sm font-semibold mb-3">
-            Contacts
-          </h2>
-          <div class="overflow-x-auto">
-            <table class="min-w-full text-left text-xs">
-              <thead class="bg-slate-900">
-                <tr>
-                  <th class="px-3 py-2 font-medium text-gray-300">Name</th>
-                  <th class="px-3 py-2 font-medium text-gray-300">Outlet</th>
-                  <th class="px-3 py-2 font-medium text-gray-300">Beat</th>
-                  <th class="px-3 py-2 font-medium text-gray-300">Email</th>
-                  <th class="px-3 py-2 font-medium text-gray-300">Twitter</th>
-                  <th class="px-3 py-2 font-medium text-gray-300">Notes</th>
-                </tr>
-              </thead>
-              <tbody id="contacts-body" class="divide-y divide-slate-700">
-                <!-- Populated by loadContacts() -->
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </main>
+    <!-- Tabs -->
+    <div class="border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-6">
+        <nav class="-mb-px flex space-x-8">
+          <button data-tab="brief" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm tab-active:border-primary tab-active:text-primary border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">Brief</button>
+          <button data-tab="rolodex" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">Rolodex</button>
+          <button data-tab="notes" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">Notes</button>
+        </nav>
+      </div>
     </div>
-  </body>
+
+    <!-- Brief Tab -->
+    <div id="brief" class="tab-content hidden max-w-7xl mx-auto px-6 py-8">
+      <div class="bg-white rounded-xl shadow-sm border p-8 mb-8">
+        <h2 class="text-xl font-semibold mb-6">Calibration</h2>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium mb-2">Recency</label>
+            <select id="recency" class="w-full p-3 border border-gray-300 rounded-lg">
+              <option>24h</option><option>3 days</option><option>7 days</option><option>30+ days</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Topics</label>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <label class="flex items-center"><input type="checkbox" class="beat-topic mr-2"> Chemicals</label>
+              <label class="flex items-center"><input type="checkbox" class="beat-topic mr-2"> CCS</label>
+              <label class="flex items-center"><input type="checkbox" class="beat-topic mr-2"> Batteries</label>
+            </div>
+          </div>
+        </div>
+        <button onclick="generateBrief()" class="mt-6 bg-primary text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition">Run Brief</button>
+        <div id="lastRun" class="text-sm text-gray-500 mt-2"></div>
+      </div>
+      <div id="briefContent" class="space-y-6"></div>
+    </div>
+
+    <!-- Rolodex Tab -->
+    <div id="rolodex" class="tab-content hidden max-w-7xl mx-auto px-6 py-8">
+      <div class="bg-white rounded-xl shadow-sm border p-6 mb-8">
+        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+          <input id="roloSearch" placeholder="Search people, companies, tags..." class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+          <div class="flex gap-2">
+            <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">People</button>
+            <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Companies</button>
+          </div>
+          <button onclick="showAddContact()" class="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-blue-700">+ New</button>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <table id="roloTable" class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="p-4 text-left font-medium text-sm text-gray-700">Name</th>
+              <th class="p-4 text-left font-medium text-sm text-gray-700">Org</th>
+              <th class="p-4 text-left font-medium text-sm text-gray-700">Role</th>
+              <th class="p-4 text-left font-medium text-sm text-gray-700">Email</th>
+              <th class="p-4 text-left font-medium text-sm text-gray-700">Beats</th>
+            </tr>
+          </thead>
+          <tbody id="roloTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Details Pane -->
+    <div id="detailsPane" class="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl transform translate-x-full transition-transform z-40">
+      <div class="p-6 border-b">
+        <div class="flex items-center justify-between">
+          <h2 id="detailTitle" class="text-xl font-semibold"></h2>
+          <button onclick="closeDetails()" class="text-gray-400 hover:text-gray-600">&times;</button>
+        </div>
+      </div>
+      <div id="detailContent" class="p-6 overflow-y-auto h-[calc(100vh-8rem)]"></div>
+    </div>
+
+    <!-- Notes Tab (Placeholder for Phase 3) -->
+    <div id="notes" class="tab-content hidden max-w-7xl mx-auto px-6 py-8">
+      <div class="text-center py-12 text-gray-500">
+        <h2 class="text-2xl font-semibold mb-4">Notes Workspace</h2>
+        <p>Coming in Phase 3: Story workspace with sources, to-dos, fact-checking, and BeatBot assistant.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== CONFIG =====
+    const API_BASE = '/api';
+    const USERS = [
+      { username: 'matt', password: 'beatbot1', email: 'mattblois@gmail.com' },
+      { username: 'sara', password: 'beatbot2', email: 'sara@example.com' },
+      { username: 'chris', password: 'beatbot3', email: 'chris@example.com' }
+    ];
+    let CURRENT_USER = null;
+    let CONTACTS = [];
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+    });
+
+    // ===== AUTH =====
+    async function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const user = USERS.find(u => u.username === username && u.password === password);
+      
+      if (user) {
+        CURRENT_USER = user;
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        document.getElementById('userDisplay').textContent = username;
+        loadRolodex();
+        switchTab('rolodex');
+      } else {
+        document.getElementById('loginError').classList.remove('hidden');
+      }
+    }
+
+    function logout() {
+      CURRENT_USER = null;
+      document.getElementById('app').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('loginError').classList.add('hidden');
+    }
+
+    // ===== API HELPER =====
+    async function apiCall(action, params = {}) {
+      const url = `${API_BASE}?action=${action}&user=${encodeURIComponent(CURRENT_USER.email)}`;
+      const query = new URLSearchParams(params).toString();
+      const response = await fetch(url + (query ? '&' + query : ''), {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      return response.json();
+    }
+
+    // ===== TAB MANAGEMENT =====
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('border-primary', 'text-primary');
+        b.classList.add('border-transparent', 'text-gray-500');
+      });
+      
+      document.getElementById(tabName).classList.remove('hidden');
+      event.target.classList.add('border-primary', 'text-primary');
+      event.target.classList.remove('border-transparent', 'text-gray-500');
+      
+      if (tabName === 'rolodex') loadRolodex();
+    }
+
+    // ===== ROLODEX =====
+    async function loadRolodex() {
+      try {
+        CONTACTS = await apiCall('getContacts');
+        renderRolodexTable();
+      } catch(e) {
+        console.error('Failed to load contacts:', e);
+      }
+    }
+
+    function renderRolodexTable() {
+      const tbody = document.getElementById('roloTableBody');
+      tbody.innerHTML = CONTACTS.map(c => `
+        <tr class="hover:bg-gray-50 border-b cursor-pointer" onclick="openDetails('${c.id}')">
+          <td class="p-4 font-medium">${c.Name || ''}</td>
+          <td class="p-4">${c.Org || ''}</td>
+          <td class="p-4">${c.Role || ''}</td>
+          <td class="p-4">${c.Email || ''}</td>
+          <td class="p-4">${c.Beats || ''}</td>
+        </tr>
+      `).join('');
+    }
+
+    function openDetails(id) {
+      const contact = CONTACTS.find(c => c.id === id);
+      if (!contact) return;
+      
+      document.getElementById('detailTitle').textContent = contact.Name;
+      document.getElementById('detailContent').innerHTML = `
+        <div class="space-y-6">
+          <div>
+            <h3 class="font-semibold mb-2">Org/Role</h3>
+            <p>${contact.Org} - ${contact.Role}</p>
+          </div>
+          <div>
+            <h3 class="font-semibold mb-2">Contact</h3>
+            <p><strong>Email:</strong> ${contact.Email || 'N/A'}</p>
+            <p><strong>Phone:</strong> ${contact.Phone || 'N/A'}</p>
+            <p><strong>LinkedIn:</strong> ${contact.LinkedIn || 'N/A'}</p>
+          </div>
+          <div>
+            <h3 class="font-semibold mb-2">Beats</h3>
+            <p>${contact.Beats || 'N/A'}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Notes</label>
+            <textarea class="w-full p-3 border border-gray-300 rounded-lg" rows="4">${contact.Notes || ''}</textarea>
+          </div>
+          <div class="flex gap-3 pt-4">
+            <button onclick="saveContact('${id}')" class="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-blue-700">Save</button>
+            <button onclick="closeDetails()" class="flex-1 border border-gray-300 py-2 px-4 rounded-lg hover:bg-gray-50">Cancel</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('detailsPane').classList.remove('translate-x-full');
+    }
+
+    function closeDetails() {
+      document.getElementById('detailsPane').classList.add('translate-x-full');
+    }
+
+    async function saveContact(id) {
+      const contact = CONTACTS.find(c => c.id === id);
+      // Extract updated values from form
+      const textarea = document.getElementById('detailContent').querySelector('textarea');
+      contact.Notes = textarea.value;
+      
+      await apiCall('updateContact', { id, updates: JSON.stringify(contact) });
+      loadRolodex();
+      closeDetails();
+    }
+
+    function showAddContact() {
+      // TODO: Modal for new contact
+      alert('Add contact form coming soon!');
+    }
+
+    // ===== BRIEF =====
+    async function generateBrief() {
+      try {
+        const result = await apiCall('generateBrief', {
+          recency: document.getElementById('recency').value,
+          topics: Array.from(document.querySelectorAll('.beat-topic:checked')).map(cb => cb.value)
+        });
+        renderBrief(result);
+      } catch(e) {
+        console.error('Brief generation failed:', e);
+      }
+    }
+
+    function renderBrief(data) {
+      document.getElementById('briefContent').innerHTML = `
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+          <h3 class="text-lg font-semibold mb-2">Battery Materials</h3>
+          <p class="text-sm text-gray-600 mb-4">4 announcements • 1 sentiment • 1 trend</p>
+          <div class="space-y-4">
+            <div class="bg-white p-4 rounded-lg border">
+              <h4 class="font-medium mb-1">Orbia Fluor completes expansion</h4>
+              <p class="text-sm text-gray-600 mb-2">New US facility... lower carbon footprint.</p>
+              <div class="flex gap-2 text-xs mb-3">
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Rolodex</span>
+                <span>Infra • Dec 15</span>
+              </div>
+              <div class="flex gap-2">
+                <button class="text-xs bg-primary text-white px-3 py-1 rounded hover:bg-blue-700">Start story</button>
+                <button class="text-xs border px-3 py-1 rounded hover:bg-gray-50">Follow</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Enter to login
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !document.getElementById('app').classList.contains('hidden')) {
+        login();
+      }
+    });
+  </script>
+</body>
 </html>
