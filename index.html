@@ -1,308 +1,155 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>BeatBot</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: { extend: { colors: { primary: '#1f2937', secondary: '#3b82f6' } } }
-    }
-  </script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-  <!-- Login Screen -->
-  <div id="loginScreen" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+  
+  <!-- LOGIN -->
+  <div id="login" class="fixed inset-0 flex items-center justify-center z-50 bg-white">
     <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full mx-4">
       <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">🔒 BeatBot</h1>
-      <div class="space-y-4">
-        <input id="username" type="text" placeholder="Username"
-               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-        <input id="password" type="password" placeholder="Password"
-               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-        <button id="loginButton"
-                class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
-          Login
-        </button>
-      </div>
-      <p id="loginError" class="text-red-500 mt-4 hidden">Invalid credentials</p>
+      <input id="user" type="text" placeholder="matt" class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500">
+      <input id="pass" type="password" placeholder="beatbot1" class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500">
+      <button onclick="doLogin()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700">
+        LOGIN
+      </button>
     </div>
   </div>
 
-  <!-- Add Contact Modal -->
-  <div id="addContactModal"
-       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold">Add New Contact</h2>
-        <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-      </div>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium mb-2">Type</label>
-          <select id="contactType" class="w-full p-3 border border-gray-300 rounded-lg">
-            <option value="person">Person</option>
-            <option value="company">Company</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-2">Name *</label>
-          <input id="contactName" type="text"
-                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
-        </div>
-        <div id="personFields">
-          <div>
-            <label class="block text-sm font-medium mb-2">Organization</label>
-            <input id="contactOrg" type="text"
-                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-2">Role</label>
-            <input id="contactRole" type="text"
-                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-2">Email</label>
-            <input id="contactEmail" type="email"
-                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-2">Beats (comma separated)</label>
-            <input id="contactBeats" type="text" placeholder="CCS, Policy, Batteries"
-                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-          </div>
-        </div>
-        <div id="companyFields" class="hidden">
-          <div>
-            <label class="block text-sm font-medium mb-2">Sector</label>
-            <input id="contactSector" type="text"
-                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-2">Website</label>
-            <input id="contactWebsite" type="url"
-                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-          </div>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-2">Notes</label>
-          <textarea id="contactNotes"
-                    class="w-full p-3 border border-gray-300 rounded-lg" rows="3"></textarea>
-        </div>
-        <div class="flex gap-3 pt-4">
-          <button onclick="saveNewContact()"
-                  class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700">
-            Save Contact
-          </button>
-          <button onclick="closeAddModal()"
-                  class="flex-1 border border-gray-300 py-3 px-4 rounded-lg hover:bg-gray-50">
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main App -->
+  <!-- APP -->
   <div id="app" class="hidden min-h-screen bg-gray-50">
-    <!-- Top Bar -->
-    <div class="bg-white border-b border-gray-200 px-6 py-4">
-      <div class="max-w-7xl mx-auto flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <h1 class="text-2xl font-bold text-gray-900">BeatBot</h1>
-          <span id="userDisplay" class="text-sm text-gray-500"></span>
-        </div>
-        <button onclick="logout()" class="text-sm text-gray-500 hover:text-gray-900">Logout</button>
+    <div class="bg-white border-b p-6">
+      <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">BeatBot</h1>
+        <button onclick="logout()" class="text-blue-600 hover:underline">Logout</button>
       </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="border-b border-gray-200">
-      <div class="max-w-7xl mx-auto px-6">
-        <nav class="-mb-px flex space-x-8">
-          <button data-tab="brief"
-                  class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-primary text-primary">
-            Brief
-          </button>
-          <button data-tab="rolodex"
-                  class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
-            Rolodex
-          </button>
-          <button data-tab="notes"
-                  class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
-            Notes
-          </button>
-        </nav>
+    <!-- TABS -->
+    <div class="border-b">
+      <div class="max-w-6xl mx-auto px-6">
+        <button onclick="showTab('rolodex')" id="tab-rolo" class="tab-btn px-4 py-4 font-semibold text-blue-600 border-b-2 border-blue-600">Rolodex</button>
+        <button onclick="showTab('brief')" id="tab-brief" class="tab-btn px-4 py-4 font-semibold text-gray-600">Brief</button>
+        <button onclick="showTab('notes')" id="tab-notes" class="tab-btn px-4 py-4 font-semibold text-gray-600">Notes</button>
       </div>
     </div>
 
-    <!-- Brief Tab -->
-    <div id="brief" class="tab-content max-w-7xl mx-auto px-6 py-8">
-      <div class="bg-white rounded-xl shadow-sm border p-8 mb-8">
-        <h2 class="text-xl font-semibold mb-6">Calibration</h2>
-        <div class="grid md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-sm font-medium mb-2">Recency</label>
-            <select id="recency" class="w-full p-3 border border-gray-300 rounded-lg">
-              <option>24h</option>
-              <option>3 days</option>
-              <option>7 days</option>
-              <option>30+ days</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-2">Topics</label>
-            <div class="flex flex-wrap gap-2 mt-2">
-              <label class="flex items-center text-sm">
-                <input type="checkbox" class="beat-topic mr-2" value="Chemicals">Chemicals
-              </label>
-              <label class="flex items-center text-sm">
-                <input type="checkbox" class="beat-topic mr-2" value="CCS">CCS
-              </label>
-              <label class="flex items-center text-sm">
-                <input type="checkbox" class="beat-topic mr-2" value="Batteries">Batteries
-              </label>
-            </div>
-          </div>
-        </div>
-        <button onclick="generateBrief()"
-                class="mt-6 bg-primary text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition">
-          Run Brief
-        </button>
-        <div id="lastRun" class="text-sm text-gray-500 mt-2"></div>
-      </div>
-      <div id="briefContent" class="space-y-6"></div>
-    </div>
-
-    <!-- Rolodex Tab -->
-    <div id="rolodex" class="tab-content hidden max-w-7xl mx-auto px-6 py-8">
-      <div class="bg-white rounded-xl shadow-sm border p-6 mb-8">
-        <div class="flex flex-col sm:flex-row gap-4 mb-6">
-          <input id="roloSearch" placeholder="Search people, companies, tags..."
-                 class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-          <button onclick="openAddModal()"
-                  class="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-blue-700">
-            + New
-          </button>
+    <!-- ROLODEX TAB -->
+    <div id="rolodex-tab" class="max-w-6xl mx-auto px-6 py-8">
+      <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <div class="flex gap-4 mb-6">
+          <input id="search" placeholder="Search contacts..." class="flex-1 p-3 border rounded-lg">
+          <button onclick="showAddForm()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700">+ Add</button>
         </div>
       </div>
-      <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+      <div class="bg-white rounded-lg shadow overflow-auto">
         <table class="w-full">
           <thead class="bg-gray-50">
             <tr>
-              <th class="p-4 text-left font-medium text-sm text-gray-700">Name</th>
-              <th class="p-4 text-left font-medium text-sm text-gray-700">Org</th>
-              <th class="p-4 text-left font-medium text-sm text-gray-700">Role</th>
-              <th class="p-4 text-left font-medium text-sm text-gray-700">Email</th>
-              <th class="p-4 text-left font-medium text-sm text-gray-700">Beats</th>
+              <th class="p-4 text-left font-semibold text-sm">Name</th>
+              <th class="p-4 text-left font-semibold text-sm">Org</th>
+              <th class="p-4 text-left font-semibold text-sm">Role</th>
+              <th class="p-4 text-left font-semibold text-sm">Email</th>
+              <th class="p-4 text-left font-semibold text-sm">Beats</th>
             </tr>
           </thead>
-          <tbody id="roloTableBody"></tbody>
+          <tbody id="contacts"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Details Pane -->
-    <div id="detailsPane"
-         class="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl transform translate-x-full transition-transform z-40">
-      <div class="p-6 border-b flex items-center justify-between">
-        <h2 id="detailTitle" class="text-xl font-semibold"></h2>
-        <button onclick="closeDetails()" class="text-gray-400 hover:text-gray-600">&times;</button>
+    <!-- ADD FORM -->
+    <div id="add-form" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 hidden">
+      <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <h2 class="text-2xl font-bold mb-6">Add Contact</h2>
+        <div class="space-y-4">
+          <input id="add-name" placeholder="Name" class="w-full p-3 border rounded-lg">
+          <input id="add-org" placeholder="Organization" class="w-full p-3 border rounded-lg">
+          <input id="add-role" placeholder="Role" class="w-full p-3 border rounded-lg">
+          <input id="add-email" placeholder="Email" class="w-full p-3 border rounded-lg">
+          <input id="add-beats" placeholder="Beats (CCS, Batteries)" class="w-full p-3 border rounded-lg">
+          <textarea id="add-notes" placeholder="Notes" class="w-full p-3 border rounded-lg" rows="3"></textarea>
+          <div class="flex gap-3">
+            <button onclick="saveContact()" class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold">Save</button>
+            <button onclick="hideAddForm()" class="flex-1 bg-gray-200 py-3 rounded-lg">Cancel</button>
+          </div>
+        </div>
       </div>
-      <div id="detailContent" class="p-6 overflow-y-auto h-[calc(100vh-4rem)]"></div>
     </div>
 
-    <!-- Notes Tab (placeholder) -->
-    <div id="notes" class="tab-content hidden max-w-7xl mx-auto px-6 py-8">
+    <!-- OTHER TABS (placeholders) -->
+    <div id="brief-tab" class="max-w-6xl mx-auto px-6 py-8 hidden">
+      <div class="bg-white rounded-lg shadow p-8">
+        <h2 class="text-xl font-bold mb-6">Daily Brief</h2>
+        <button onclick="runBrief()" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold">Run Brief</button>
+        <div id="brief-results" class="mt-6"></div>
+      </div>
+    </div>
+
+    <div id="notes-tab" class="max-w-6xl mx-auto px-6 py-8 hidden">
       <div class="text-center py-12 text-gray-500">
-        <h2 class="text-2xl font-semibold mb-4">Notes Workspace</h2>
-        <p>Story workspace coming next.</p>
+        <h2 class="text-2xl font-bold mb-4">Notes Workspace</h2>
+        <p>Coming soon</p>
       </div>
     </div>
   </div>
 
   <script>
-    const API_BASE = 'https://script.google.com/macros/s/AKfycbxA5Y_Y1dj9uw4Q5KtaGfZ37TJQ_lvWjfoIQD36LWlmNpxzUo1gAhbMaXY13JlH4aj3/exec';
-    const USERS = [
-      { username: 'matt',  password: 'beatbot1', email: 'mattblois@gmail.com' },
-      { username: 'sara',  password: 'beatbot2', email: 'sara@example.com' },
-      { username: 'chris', password: 'beatbot3', email: 'chris@example.com' }
-    ];
-    let CURRENT_USER = null;
-    let CONTACTS = [];
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxA5Y_Y1dj9uw4Q5KtaGfZ37TJQ_lvWjfoIQD36LWlmNpxzUo1gAhbMaXY13JlH4aj3/exec';
+    let currentUser = null;
+    let contacts = [];
 
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => switchTab(btn.dataset.tab, btn));
-      });
-      document.getElementById('loginButton').addEventListener('click', login);
-      document.getElementById('contactType').addEventListener('change', toggleContactTypeFields);
-      document.getElementById('password').addEventListener('keydown', e => {
-        if (e.key === 'Enter') login();
-      });
-    });
-
-    function login() {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const user = USERS.find(u => u.username === username && u.password === password);
-      if (!user) {
-        document.getElementById('loginError').classList.remove('hidden');
+    // LOGIN
+    function doLogin() {
+      const username = document.getElementById('user').value;
+      const password = document.getElementById('pass').value;
+      
+      if (username === 'matt' && password === 'beatbot1') {
+        currentUser = 'mattblois@gmail.com';
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('app').classList.remove('hidden');
+        loadContacts();
         return;
       }
-      CURRENT_USER = user;
-      document.getElementById('userDisplay').textContent = user.email;
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('app').classList.remove('hidden');
-      document.getElementById('loginError').classList.add('hidden');
-      loadRolodex();
+      alert('Wrong credentials. Use: matt / beatbot1');
     }
 
     function logout() {
-      CURRENT_USER = null;
+      currentUser = null;
       document.getElementById('app').classList.add('hidden');
-      document.getElementById('loginScreen').classList.remove('hidden');
-      document.getElementById('username').value = '';
-      document.getElementById('password').value = '';
+      document.getElementById('login').style.display = 'flex';
+      document.getElementById('user').value = '';
+      document.getElementById('pass').value = '';
     }
 
-    async function apiCall(action, params = {}) {
-      const base = `${API_BASE}?action=${encodeURIComponent(action)}&user=${encodeURIComponent(CURRENT_USER.email)}`;
-      const query = new URLSearchParams(params).toString();
-      const url = base + (query ? `&${query}` : '');
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('API error');
-      return res.json();
+    // TABS
+    function showTab(tab) {
+      document.querySelectorAll('[id$="-tab"]').forEach(t => t.classList.add('hidden'));
+      document.getElementById(tab + '-tab').classList.remove('hidden');
+      
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('text-blue-600', 'border-blue-600'));
+      document.getElementById('tab-' + tab).classList.add('text-blue-600', 'border-blue-600');
     }
 
-    function switchTab(name, btn) {
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-      document.getElementById(name).classList.remove('hidden');
-      document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.remove('border-primary','text-primary');
-        b.classList.add('border-transparent','text-gray-500');
-      });
-      if (btn) {
-        btn.classList.remove('border-transparent','text-gray-500');
-        btn.classList.add('border-primary','text-primary');
-      }
-      if (name === 'rolodex' && CURRENT_USER) loadRolodex();
-    }
-
-    async function loadRolodex() {
+    // CONTACTS
+    async function loadContacts() {
       try {
-        CONTACTS = await apiCall('getContacts');
-        renderRolodexTable();
-      } catch (e) {
-        console.error('Failed to load contacts', e);
+        const res = await fetch(`${API_URL}?action=getContacts&user=${currentUser}`);
+        contacts = await res.json();
+        showContacts();
+      } catch(e) {
+        console.error('Load failed', e);
       }
     }
 
-    function renderRolodexTable() {
-      const tbody = document.getElementById('roloTableBody');
-      tbody.innerHTML = CONTACTS.map(c => `
-        <tr class="hover:bg-gray-50 border-b cursor-pointer" onclick="openDetails('${c.id}')">
+    function showContacts() {
+      const tbody = document.getElementById('contacts');
+      tbody.innerHTML = contacts.map(c => `
+        <tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="editContact('${c.id}')">
           <td class="p-4 font-medium">${c.Name || ''}</td>
           <td class="p-4">${c.Org || ''}</td>
           <td class="p-4">${c.Role || ''}</td>
@@ -312,154 +159,53 @@
       `).join('');
     }
 
-    function openDetails(id) {
-      const contact = CONTACTS.find(c => c.id === id);
-      if (!contact) return;
-      document.getElementById('detailTitle').textContent = contact.Name || 'Contact';
-      document.getElementById('detailContent').innerHTML = `
-        <div class="space-y-6">
-          <div>
-            <h3 class="font-semibold mb-1">Org / Role</h3>
-            <p class="text-sm text-gray-700">${contact.Org || ''} ${contact.Role ? '– ' + contact.Role : ''}</p>
-          </div>
-          <div>
-            <h3 class="font-semibold mb-1">Contact</h3>
-            <p class="text-sm"><span class="font-medium">Email:</span> ${contact.Email || 'N/A'}</p>
-            <p class="text-sm"><span class="font-medium">Phone:</span> ${contact.Phone || 'N/A'}</p>
-            <p class="text-sm"><span class="font-medium">LinkedIn:</span> ${contact.LinkedIn || 'N/A'}</p>
-          </div>
-          <div>
-            <h3 class="font-semibold mb-1">Beats</h3>
-            <p class="text-sm text-gray-700">${contact.Beats || 'N/A'}</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Notes</label>
-            <textarea id="detailNotes"
-                      class="w-full p-3 border border-gray-300 rounded-lg" rows="4">${
-                        contact.Notes || ''
-                      }</textarea>
-          </div>
-          <div class="flex gap-3 pt-4">
-            <button onclick="saveContact('${id}')"
-                    class="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-              Save
-            </button>
-            <button onclick="closeDetails()"
-                    class="flex-1 border border-gray-300 py-2 px-4 rounded-lg hover:bg-gray-50">
-              Cancel
-            </button>
-          </div>
+    // ADD CONTACT
+    function showAddForm() {
+      document.getElementById('add-form').classList.remove('hidden');
+    }
+
+    function hideAddForm() {
+      document.getElementById('add-form').classList.add('hidden');
+      clearAddForm();
+    }
+
+    function clearAddForm() {
+      document.getElementById('add-name').value = '';
+      document.getElementById('add-org').value = '';
+      document.getElementById('add-role').value = '';
+      document.getElementById('add-email').value = '';
+      document.getElementById('add-beats').value = '';
+      document.getElementById('add-notes').value = '';
+    }
+
+    async function saveContact() {
+      const data = {
+        Name: document.getElementById('add-name').value,
+        Org: document.getElementById('add-org').value,
+        Role: document.getElementById('add-role').value,
+        Email: document.getElementById('add-email').value,
+        Beats: document.getElementById('add-beats').value,
+        Notes: document.getElementById('add-notes').value,
+        UserEmail: currentUser
+      };
+
+      try {
+        await fetch(`${API_URL}?action=addContact&data=${encodeURIComponent(JSON.stringify(data))}`);
+        hideAddForm();
+        loadContacts();
+      } catch(e) {
+        alert('Save failed');
+      }
+    }
+
+    // BRIEF (mock)
+    async function runBrief() {
+      document.getElementById('brief-results').innerHTML = `
+        <div class="bg-blue-50 border rounded-lg p-6">
+          <h3 class="font-bold text-lg mb-2">Battery Materials</h3>
+          <p class="text-sm text-gray-600 mb-4">Mock brief - real Perplexity coming next</p>
         </div>
       `;
-      document.getElementById('detailsPane').classList.remove('translate-x-full');
-    }
-
-    function closeDetails() {
-      document.getElementById('detailsPane').classList.add('translate-x-full');
-    }
-
-    async function saveContact(id) {
-      const contact = CONTACTS.find(c => c.id === id);
-      if (!contact) return;
-      contact.Notes = document.getElementById('detailNotes').value;
-      try {
-        await apiCall('updateContact', { id, updates: JSON.stringify({ Notes: contact.Notes }) });
-        await loadRolodex();
-        closeDetails();
-      } catch (e) {
-        console.error('Failed to save contact', e);
-      }
-    }
-
-    function openAddModal() {
-      document.getElementById('addContactModal').classList.remove('hidden');
-    }
-
-    function closeAddModal() {
-      document.getElementById('addContactModal').classList.add('hidden');
-    }
-
-    function toggleContactTypeFields() {
-      const type = document.getElementById('contactType').value;
-      document.getElementById('personFields').classList.toggle('hidden', type !== 'person');
-      document.getElementById('companyFields').classList.toggle('hidden', type !== 'company');
-    }
-
-    async function saveNewContact() {
-      const type = document.getElementById('contactType').value;
-      const name = document.getElementById('contactName').value.trim();
-      if (!name) {
-        alert('Name is required');
-        return;
-      }
-      let payload = { type, Name: name };
-      if (type === 'person') {
-        payload.Org = document.getElementById('contactOrg').value.trim();
-        payload.Role = document.getElementById('contactRole').value.trim();
-        payload.Email = document.getElementById('contactEmail').value.trim();
-        payload.Beats = document.getElementById('contactBeats').value.trim();
-      } else {
-        payload.Sector = document.getElementById('contactSector').value.trim();
-        payload.Website = document.getElementById('contactWebsite').value.trim();
-      }
-      payload.Notes = document.getElementById('contactNotes').value.trim();
-      try {
-        await apiCall('addContact', { data: JSON.stringify(payload) });
-        closeAddModal();
-        document.getElementById('contactName').value = '';
-        document.getElementById('contactOrg').value = '';
-        document.getElementById('contactRole').value = '';
-        document.getElementById('contactEmail').value = '';
-        document.getElementById('contactBeats').value = '';
-        document.getElementById('contactSector').value = '';
-        document.getElementById('contactWebsite').value = '';
-        document.getElementById('contactNotes').value = '';
-        await loadRolodex();
-      } catch (e) {
-        console.error('Failed to add contact', e);
-      }
-    }
-
-    async function generateBrief() {
-      try {
-        const recency = document.getElementById('recency').value;
-        const topics = Array.from(document.querySelectorAll('.beat-topic:checked'))
-          .map(cb => cb.value).join(',');
-        const data = await apiCall('generateBrief', { recency, topics });
-        renderBrief(data);
-        document.getElementById('lastRun').textContent =
-          'Last run: ' + new Date().toLocaleString();
-      } catch (e) {
-        console.error('Brief generation failed', e);
-      }
-    }
-
-    function renderBrief(data) {
-      const container = document.getElementById('briefContent');
-      if (!data || !data.topics || !data.topics.length) {
-        container.innerHTML = '<p class="text-gray-500 text-sm">No items yet.</p>';
-        return;
-      }
-      container.innerHTML = data.topics.map(topic => `
-        <div class="bg-white border rounded-xl p-6 shadow-sm">
-          <h3 class="text-lg font-semibold mb-2">${topic.name}</h3>
-          <p class="text-xs text-gray-500 mb-4">
-            ${topic.announcements.length} announcements • ${topic.trends.length} trends
-          </p>
-          <div class="space-y-4">
-            ${topic.announcements.map(a => `
-              <div class="border rounded-lg p-4">
-                <h4 class="font-medium mb-1">${a.title}</h4>
-                <p class="text-sm text-gray-600 mb-2">${a.summary}</p>
-                <div class="flex flex-wrap gap-2 text-xs mb-3">
-                  <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">${a.source}</span>
-                  <span>${a.type} • ${a.date}</span>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `).join('');
     }
   </script>
 </body>
