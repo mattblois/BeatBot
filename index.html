@@ -8,24 +8,12 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
   
-  <!-- LOGIN -->
-  <div id="login" class="fixed inset-0 flex items-center justify-center z-50 bg-white">
-    <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full mx-4">
-      <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">🔒 BeatBot</h1>
-      <input id="user" type="text" placeholder="matt" class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500">
-      <input id="pass" type="password" placeholder="beatbot1" class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500">
-      <button onclick="doLogin()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700">
-        LOGIN
-      </button>
-    </div>
-  </div>
-
-  <!-- APP -->
-  <div id="app" class="hidden min-h-screen bg-gray-50">
+  <!-- APP (No login screen) -->
+  <div class="min-h-screen bg-gray-50">
     <div class="bg-white border-b p-6">
       <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-gray-900">BeatBot</h1>
-        <button onclick="logout()" class="text-blue-600 hover:underline">Logout</button>
+        <h1 class="text-2xl font-bold text-gray-900">🔒 BeatBot (Dev Mode)</h1>
+        <span class="text-sm text-gray-500">mattblois@gmail.com</span>
       </div>
     </div>
 
@@ -46,7 +34,7 @@
           <button onclick="showAddForm()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700">+ Add</button>
         </div>
       </div>
-      <div class="bg-white rounded-lg shadow overflow-auto">
+      <div class="bg-white rounded-lg shadow overflow-auto max-h-[70vh]">
         <table class="w-full">
           <thead class="bg-gray-50">
             <tr>
@@ -67,7 +55,7 @@
       <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
         <h2 class="text-2xl font-bold mb-6">Add Contact</h2>
         <div class="space-y-4">
-          <input id="add-name" placeholder="Name" class="w-full p-3 border rounded-lg">
+          <input id="add-name" placeholder="Name *" class="w-full p-3 border rounded-lg" required>
           <input id="add-org" placeholder="Organization" class="w-full p-3 border rounded-lg">
           <input id="add-role" placeholder="Role" class="w-full p-3 border rounded-lg">
           <input id="add-email" placeholder="Email" class="w-full p-3 border rounded-lg">
@@ -81,7 +69,7 @@
       </div>
     </div>
 
-    <!-- OTHER TABS (placeholders) -->
+    <!-- BRIEF TAB -->
     <div id="brief-tab" class="max-w-6xl mx-auto px-6 py-8 hidden">
       <div class="bg-white rounded-lg shadow p-8">
         <h2 class="text-xl font-bold mb-6">Daily Brief</h2>
@@ -90,6 +78,7 @@
       </div>
     </div>
 
+    <!-- NOTES TAB -->
     <div id="notes-tab" class="max-w-6xl mx-auto px-6 py-8 hidden">
       <div class="text-center py-12 text-gray-500">
         <h2 class="text-2xl font-bold mb-4">Notes Workspace</h2>
@@ -100,47 +89,33 @@
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbxA5Y_Y1dj9uw4Q5KtaGfZ37TJQ_lvWjfoIQD36LWlmNpxzUo1gAhbMaXY13JlH4aj3/exec';
-    let currentUser = null;
+    const USER_EMAIL = 'mattblois@gmail.com';
     let contacts = [];
 
-    // LOGIN
-    function doLogin() {
-      const username = document.getElementById('user').value;
-      const password = document.getElementById('pass').value;
-      
-      if (username === 'matt' && password === 'beatbot1') {
-        currentUser = 'mattblois@gmail.com';
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('app').classList.remove('hidden');
-        loadContacts();
-        return;
-      }
-      alert('Wrong credentials. Use: matt / beatbot1');
-    }
-
-    function logout() {
-      currentUser = null;
-      document.getElementById('app').classList.add('hidden');
-      document.getElementById('login').style.display = 'flex';
-      document.getElementById('user').value = '';
-      document.getElementById('pass').value = '';
-    }
+    // STARTUP
+    loadContacts();
 
     // TABS
     function showTab(tab) {
       document.querySelectorAll('[id$="-tab"]').forEach(t => t.classList.add('hidden'));
       document.getElementById(tab + '-tab').classList.remove('hidden');
       
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('text-blue-600', 'border-blue-600'));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('text-blue-600', 'border-blue-600');
+        b.classList.add('text-gray-600');
+      });
       document.getElementById('tab-' + tab).classList.add('text-blue-600', 'border-blue-600');
+      document.getElementById('tab-' + tab).classList.remove('text-gray-600');
     }
 
     // CONTACTS
     async function loadContacts() {
       try {
-        const res = await fetch(`${API_URL}?action=getContacts&user=${currentUser}`);
-        contacts = await res.json();
-        showContacts();
+        const res = await fetch(`${API_URL}?action=getContacts&user=${USER_EMAIL}`);
+        if (res.ok) {
+          contacts = await res.json();
+          showContacts();
+        }
       } catch(e) {
         console.error('Load failed', e);
       }
@@ -170,32 +145,41 @@
     }
 
     function clearAddForm() {
-      document.getElementById('add-name').value = '';
-      document.getElementById('add-org').value = '';
-      document.getElementById('add-role').value = '';
-      document.getElementById('add-email').value = '';
-      document.getElementById('add-beats').value = '';
-      document.getElementById('add-notes').value = '';
+      document.querySelectorAll('#add-form input, #add-form textarea').forEach(el => el.value = '');
     }
 
     async function saveContact() {
       const data = {
-        Name: document.getElementById('add-name').value,
-        Org: document.getElementById('add-org').value,
-        Role: document.getElementById('add-role').value,
-        Email: document.getElementById('add-email').value,
-        Beats: document.getElementById('add-beats').value,
-        Notes: document.getElementById('add-notes').value,
-        UserEmail: currentUser
+        Name: document.getElementById('add-name').value.trim(),
+        Org: document.getElementById('add-org').value.trim(),
+        Role: document.getElementById('add-role').value.trim(),
+        Email: document.getElementById('add-email').value.trim(),
+        Beats: document.getElementById('add-beats').value.trim(),
+        Notes: document.getElementById('add-notes').value.trim(),
+        UserEmail: USER_EMAIL
       };
 
-      try {
-        await fetch(`${API_URL}?action=addContact&data=${encodeURIComponent(JSON.stringify(data))}`);
-        hideAddForm();
-        loadContacts();
-      } catch(e) {
-        alert('Save failed');
+      if (!data.Name) {
+        alert('Name required');
+        return;
       }
+
+      try {
+        const res = await fetch(`${API_URL}?action=addContact&data=${encodeURIComponent(JSON.stringify(data))}`);
+        if (res.ok) {
+          hideAddForm();
+          loadContacts();
+        } else {
+          alert('Save failed');
+        }
+      } catch(e) {
+        alert('Save failed: ' + e.message);
+      }
+    }
+
+    // EDIT (basic)
+    function editContact(id) {
+      alert('Edit coming next phase');
     }
 
     // BRIEF (mock)
@@ -203,7 +187,7 @@
       document.getElementById('brief-results').innerHTML = `
         <div class="bg-blue-50 border rounded-lg p-6">
           <h3 class="font-bold text-lg mb-2">Battery Materials</h3>
-          <p class="text-sm text-gray-600 mb-4">Mock brief - real Perplexity coming next</p>
+          <p class="text-sm text-gray-600 mb-4">Real Perplexity brief coming Phase 2</p>
         </div>
       `;
     }
