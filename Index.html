@@ -17,9 +17,14 @@
     <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full mx-4">
       <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">🔒 BeatBot</h1>
       <div class="space-y-4">
-        <input id="username" type="text" placeholder="Username" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-        <input id="password" type="password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-        <button onclick="login()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">Login</button>
+        <input id="username" type="text" placeholder="Username"
+               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <input id="password" type="password" placeholder="Password"
+               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <button onclick="login()"
+                class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
+          Login
+        </button>
       </div>
       <p id="loginError" class="text-red-500 mt-4 hidden">Invalid credentials</p>
     </div>
@@ -34,9 +39,7 @@
           <h1 class="text-2xl font-bold text-gray-900">BeatBot</h1>
           <span id="userDisplay" class="text-sm text-gray-500"></span>
         </div>
-        <div class="flex items-center space-x-4">
-          <button onclick="logout()" class="text-sm text-gray-500 hover:text-gray-900">Logout</button>
-        </div>
+        <button onclick="logout()" class="text-sm text-gray-500 hover:text-gray-900">Logout</button>
       </div>
     </div>
 
@@ -44,34 +47,55 @@
     <div class="border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-6">
         <nav class="-mb-px flex space-x-8">
-          <button data-tab="brief" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm tab-active:border-primary tab-active:text-primary border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">Brief</button>
-          <button data-tab="rolodex" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">Rolodex</button>
-          <button data-tab="notes" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">Notes</button>
+          <button data-tab="brief"
+                  class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-primary text-primary whitespace-nowrap">
+            Brief
+          </button>
+          <button data-tab="rolodex"
+                  class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+            Rolodex
+          </button>
+          <button data-tab="notes"
+                  class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+            Notes
+          </button>
         </nav>
       </div>
     </div>
 
     <!-- Brief Tab -->
-    <div id="brief" class="tab-content hidden max-w-7xl mx-auto px-6 py-8">
+    <div id="brief" class="tab-content max-w-7xl mx-auto px-6 py-8">
       <div class="bg-white rounded-xl shadow-sm border p-8 mb-8">
         <h2 class="text-xl font-semibold mb-6">Calibration</h2>
         <div class="grid md:grid-cols-2 gap-6">
           <div>
             <label class="block text-sm font-medium mb-2">Recency</label>
             <select id="recency" class="w-full p-3 border border-gray-300 rounded-lg">
-              <option>24h</option><option>3 days</option><option>7 days</option><option>30+ days</option>
+              <option>24h</option>
+              <option>3 days</option>
+              <option>7 days</option>
+              <option>30+ days</option>
             </select>
           </div>
           <div>
             <label class="block text-sm font-medium mb-2">Topics</label>
             <div class="flex flex-wrap gap-2 mt-2">
-              <label class="flex items-center"><input type="checkbox" class="beat-topic mr-2"> Chemicals</label>
-              <label class="flex items-center"><input type="checkbox" class="beat-topic mr-2"> CCS</label>
-              <label class="flex items-center"><input type="checkbox" class="beat-topic mr-2"> Batteries</label>
+              <label class="flex items-center text-sm">
+                <input type="checkbox" class="beat-topic mr-2" value="Chemicals">Chemicals
+              </label>
+              <label class="flex items-center text-sm">
+                <input type="checkbox" class="beat-topic mr-2" value="CCS">CCS
+              </label>
+              <label class="flex items-center text-sm">
+                <input type="checkbox" class="beat-topic mr-2" value="Batteries">Batteries
+              </label>
             </div>
           </div>
         </div>
-        <button onclick="generateBrief()" class="mt-6 bg-primary text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition">Run Brief</button>
+        <button onclick="generateBrief()"
+                class="mt-6 bg-primary text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition">
+          Run Brief
+        </button>
         <div id="lastRun" class="text-sm text-gray-500 mt-2"></div>
       </div>
       <div id="briefContent" class="space-y-6"></div>
@@ -81,16 +105,16 @@
     <div id="rolodex" class="tab-content hidden max-w-7xl mx-auto px-6 py-8">
       <div class="bg-white rounded-xl shadow-sm border p-6 mb-8">
         <div class="flex flex-col sm:flex-row gap-4 mb-6">
-          <input id="roloSearch" placeholder="Search people, companies, tags..." class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-          <div class="flex gap-2">
-            <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">People</button>
-            <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Companies</button>
-          </div>
-          <button onclick="showAddContact()" class="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-blue-700">+ New</button>
+          <input id="roloSearch" placeholder="Search people, companies, tags..."
+                 class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+          <button onclick="showAddContact()"
+                  class="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-blue-700">
+            + New
+          </button>
         </div>
       </div>
       <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <table id="roloTable" class="w-full">
+        <table class="w-full">
           <thead class="bg-gray-50">
             <tr>
               <th class="p-4 text-left font-medium text-sm text-gray-700">Name</th>
@@ -106,59 +130,55 @@
     </div>
 
     <!-- Details Pane -->
-    <div id="detailsPane" class="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl transform translate-x-full transition-transform z-40">
-      <div class="p-6 border-b">
-        <div class="flex items-center justify-between">
-          <h2 id="detailTitle" class="text-xl font-semibold"></h2>
-          <button onclick="closeDetails()" class="text-gray-400 hover:text-gray-600">&times;</button>
-        </div>
+    <div id="detailsPane"
+         class="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl transform translate-x-full transition-transform z-40">
+      <div class="p-6 border-b flex items-center justify-between">
+        <h2 id="detailTitle" class="text-xl font-semibold"></h2>
+        <button onclick="closeDetails()" class="text-gray-400 hover:text-gray-600">&times;</button>
       </div>
-      <div id="detailContent" class="p-6 overflow-y-auto h-[calc(100vh-8rem)]"></div>
+      <div id="detailContent" class="p-6 overflow-y-auto h-[calc(100vh-4rem)]"></div>
     </div>
 
-    <!-- Notes Tab (Placeholder for Phase 3) -->
+    <!-- Notes Tab (placeholder) -->
     <div id="notes" class="tab-content hidden max-w-7xl mx-auto px-6 py-8">
       <div class="text-center py-12 text-gray-500">
         <h2 class="text-2xl font-semibold mb-4">Notes Workspace</h2>
-        <p>Coming in Phase 3: Story workspace with sources, to-dos, fact-checking, and BeatBot assistant.</p>
+        <p>Story workspace coming in the next phase.</p>
       </div>
     </div>
   </div>
 
   <script>
-    // ===== CONFIG =====
-    const API_BASE = '/api';
+    // ==== CONFIG ====
+    const API_BASE = 'https://script.google.com/macros/s/AKfycbxA5Y_Y1dj9uw4Q5KtaGfZ37TJQ_lvWjfoIQD36LWlmNpxzUo1gAhbMaXY13JlH4aj3/exec';
     const USERS = [
-      { username: 'matt', password: 'beatbot1', email: 'mattblois@gmail.com' },
-      { username: 'sara', password: 'beatbot2', email: 'sara@example.com' },
+      { username: 'matt',  password: 'beatbot1', email: 'mattblois@gmail.com' },
+      { username: 'sara',  password: 'beatbot2', email: 'sara@example.com' },
       { username: 'chris', password: 'beatbot3', email: 'chris@example.com' }
     ];
     let CURRENT_USER = null;
     let CONTACTS = [];
 
-    // ===== INIT =====
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab, btn));
       });
     });
 
-    // ===== AUTH =====
-    async function login() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+    // ==== AUTH ====
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
       const user = USERS.find(u => u.username === username && u.password === password);
-      
-      if (user) {
-        CURRENT_USER = user;
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('app').classList.remove('hidden');
-        document.getElementById('userDisplay').textContent = username;
-        loadRolodex();
-        switchTab('rolodex');
-      } else {
+      if (!user) {
         document.getElementById('loginError').classList.remove('hidden');
+        return;
       }
+      CURRENT_USER = user;
+      document.getElementById('userDisplay').textContent = user.email;
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+      loadRolodex();
     }
 
     function logout() {
@@ -170,39 +190,38 @@
       document.getElementById('loginError').classList.add('hidden');
     }
 
-    // ===== API HELPER =====
+    // ==== API HELPER ====
     async function apiCall(action, params = {}) {
-      const url = `${API_BASE}?action=${action}&user=${encodeURIComponent(CURRENT_USER.email)}`;
+      const base = `${API_BASE}?action=${encodeURIComponent(action)}&user=${encodeURIComponent(CURRENT_USER.email)}`;
       const query = new URLSearchParams(params).toString();
-      const response = await fetch(url + (query ? '&' + query : ''), {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      return response.json();
+      const url = base + (query ? `&${query}` : '');
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('API error');
+      return res.json();
     }
 
-    // ===== TAB MANAGEMENT =====
-    function switchTab(tabName) {
+    // ==== TABS ====
+    function switchTab(name, btn) {
       document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+      document.getElementById(name).classList.remove('hidden');
       document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.remove('border-primary', 'text-primary');
-        b.classList.add('border-transparent', 'text-gray-500');
+        b.classList.remove('border-primary','text-primary');
+        b.classList.add('border-transparent','text-gray-500');
       });
-      
-      document.getElementById(tabName).classList.remove('hidden');
-      event.target.classList.add('border-primary', 'text-primary');
-      event.target.classList.remove('border-transparent', 'text-gray-500');
-      
-      if (tabName === 'rolodex') loadRolodex();
+      if (btn) {
+        btn.classList.remove('border-transparent','text-gray-500');
+        btn.classList.add('border-primary','text-primary');
+      }
+      if (name === 'rolodex') loadRolodex();
     }
 
-    // ===== ROLODEX =====
+    // ==== ROLODEX ====
     async function loadRolodex() {
       try {
         CONTACTS = await apiCall('getContacts');
         renderRolodexTable();
-      } catch(e) {
-        console.error('Failed to load contacts:', e);
+      } catch (e) {
+        console.error('Failed to load contacts', e);
       }
     }
 
@@ -222,31 +241,38 @@
     function openDetails(id) {
       const contact = CONTACTS.find(c => c.id === id);
       if (!contact) return;
-      
-      document.getElementById('detailTitle').textContent = contact.Name;
+      document.getElementById('detailTitle').textContent = contact.Name || 'Contact';
       document.getElementById('detailContent').innerHTML = `
         <div class="space-y-6">
           <div>
-            <h3 class="font-semibold mb-2">Org/Role</h3>
-            <p>${contact.Org} - ${contact.Role}</p>
+            <h3 class="font-semibold mb-1">Org / Role</h3>
+            <p class="text-sm text-gray-700">${contact.Org || ''} ${contact.Role ? '– ' + contact.Role : ''}</p>
           </div>
           <div>
-            <h3 class="font-semibold mb-2">Contact</h3>
-            <p><strong>Email:</strong> ${contact.Email || 'N/A'}</p>
-            <p><strong>Phone:</strong> ${contact.Phone || 'N/A'}</p>
-            <p><strong>LinkedIn:</strong> ${contact.LinkedIn || 'N/A'}</p>
+            <h3 class="font-semibold mb-1">Contact</h3>
+            <p class="text-sm"><span class="font-medium">Email:</span> ${contact.Email || 'N/A'}</p>
+            <p class="text-sm"><span class="font-medium">Phone:</span> ${contact.Phone || 'N/A'}</p>
+            <p class="text-sm"><span class="font-medium">LinkedIn:</span> ${contact.LinkedIn || 'N/A'}</p>
           </div>
           <div>
-            <h3 class="font-semibold mb-2">Beats</h3>
-            <p>${contact.Beats || 'N/A'}</p>
+            <h3 class="font-semibold mb-1">Beats</h3>
+            <p class="text-sm text-gray-700">${contact.Beats || 'N/A'}</p>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-2">Notes</label>
-            <textarea class="w-full p-3 border border-gray-300 rounded-lg" rows="4">${contact.Notes || ''}</textarea>
+            <label class="block text-sm font-medium mb-1">Notes</label>
+            <textarea id="detailNotes" class="w-full p-3 border border-gray-300 rounded-lg" rows="4">${
+              contact.Notes || ''
+            }</textarea>
           </div>
           <div class="flex gap-3 pt-4">
-            <button onclick="saveContact('${id}')" class="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-blue-700">Save</button>
-            <button onclick="closeDetails()" class="flex-1 border border-gray-300 py-2 px-4 rounded-lg hover:bg-gray-50">Cancel</button>
+            <button onclick="saveContact('${id}')"
+                    class="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-blue-700">
+              Save
+            </button>
+            <button onclick="closeDetails()"
+                    class="flex-1 border border-gray-300 py-2 px-4 rounded-lg hover:bg-gray-50">
+              Cancel
+            </button>
           </div>
         </div>
       `;
@@ -259,62 +285,62 @@
 
     async function saveContact(id) {
       const contact = CONTACTS.find(c => c.id === id);
-      // Extract updated values from form
-      const textarea = document.getElementById('detailContent').querySelector('textarea');
-      contact.Notes = textarea.value;
-      
-      await apiCall('updateContact', { id, updates: JSON.stringify(contact) });
-      loadRolodex();
-      closeDetails();
+      if (!contact) return;
+      contact.Notes = document.getElementById('detailNotes').value;
+      try {
+        await apiCall('updateContact', { id, updates: JSON.stringify({ Notes: contact.Notes }) });
+        await loadRolodex();
+        closeDetails();
+      } catch (e) {
+        console.error('Failed to save contact', e);
+      }
     }
 
     function showAddContact() {
-      // TODO: Modal for new contact
-      alert('Add contact form coming soon!');
+      alert('Add contact form coming next.');
     }
 
-    // ===== BRIEF =====
+    // ==== BRIEF (mock) ====
     async function generateBrief() {
       try {
-        const result = await apiCall('generateBrief', {
-          recency: document.getElementById('recency').value,
-          topics: Array.from(document.querySelectorAll('.beat-topic:checked')).map(cb => cb.value)
-        });
-        renderBrief(result);
-      } catch(e) {
-        console.error('Brief generation failed:', e);
+        const recency = document.getElementById('recency').value;
+        const topics = Array.from(document.querySelectorAll('.beat-topic:checked')).map(cb => cb.value).join(',');
+        const data = await apiCall('generateBrief', { recency, topics });
+        renderBrief(data);
+        document.getElementById('lastRun').textContent =
+          'Last run: ' + new Date().toLocaleString();
+      } catch (e) {
+        console.error('Brief generation failed', e);
       }
     }
 
     function renderBrief(data) {
-      document.getElementById('briefContent').innerHTML = `
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
-          <h3 class="text-lg font-semibold mb-2">Battery Materials</h3>
-          <p class="text-sm text-gray-600 mb-4">4 announcements • 1 sentiment • 1 trend</p>
+      const container = document.getElementById('briefContent');
+      if (!data || !data.topics || !data.topics.length) {
+        container.innerHTML = '<p class="text-gray-500 text-sm">No items yet.</p>';
+        return;
+      }
+      container.innerHTML = data.topics.map(topic => `
+        <div class="bg-white border rounded-xl p-6 shadow-sm">
+          <h3 class="text-lg font-semibold mb-2">${topic.name}</h3>
+          <p class="text-xs text-gray-500 mb-4">
+            ${topic.announcements.length} announcements • ${topic.trends.length} trends
+          </p>
           <div class="space-y-4">
-            <div class="bg-white p-4 rounded-lg border">
-              <h4 class="font-medium mb-1">Orbia Fluor completes expansion</h4>
-              <p class="text-sm text-gray-600 mb-2">New US facility... lower carbon footprint.</p>
-              <div class="flex gap-2 text-xs mb-3">
-                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Rolodex</span>
-                <span>Infra • Dec 15</span>
+            ${topic.announcements.map(a => `
+              <div class="border rounded-lg p-4">
+                <h4 class="font-medium mb-1">${a.title}</h4>
+                <p class="text-sm text-gray-600 mb-2">${a.summary}</p>
+                <div class="flex flex-wrap gap-2 text-xs mb-3">
+                  <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">${a.source}</span>
+                  <span>${a.type} • ${a.date}</span>
+                </div>
               </div>
-              <div class="flex gap-2">
-                <button class="text-xs bg-primary text-white px-3 py-1 rounded hover:bg-blue-700">Start story</button>
-                <button class="text-xs border px-3 py-1 rounded hover:bg-gray-50">Follow</button>
-              </div>
-            </div>
+            `).join('')}
           </div>
         </div>
-      `;
+      `).join('');
     }
-
-    // Enter to login
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !document.getElementById('app').classList.contains('hidden')) {
-        login();
-      }
-    });
   </script>
 </body>
 </html>
