@@ -1,195 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>BeatBot</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  
-  <!-- APP (No login screen) -->
-  <div class="min-h-screen bg-gray-50">
-    <div class="bg-white border-b p-6">
-      <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-gray-900">🔒 BeatBot (Dev Mode)</h1>
-        <span class="text-sm text-gray-500">mattblois@gmail.com</span>
-      </div>
+<body class="bg-gray-100 p-8">
+  <div class="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-8">
+    <h1 class="text-3xl font-bold mb-8">BeatBot Rolodex</h1>
+    
+    <button onclick="showForm()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold mb-6 hover:bg-blue-700">
+      + Add Contact
+    </button>
+    
+    <div class="overflow-auto max-h-96 border rounded-lg">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="p-4 text-left font-semibold">Name</th>
+            <th class="p-4 text-left font-semibold">Org</th>
+            <th class="p-4 text-left font-semibold">Role</th>
+            <th class="p-4 text-left font-semibold">Email</th>
+            <th class="p-4 text-left font-semibold">Beats</th>
+          </tr>
+        </thead>
+        <tbody id="contacts"></tbody>
+      </table>
     </div>
+  </div>
 
-    <!-- TABS -->
-    <div class="border-b">
-      <div class="max-w-6xl mx-auto px-6">
-        <button onclick="showTab('rolodex')" id="tab-rolo" class="tab-btn px-4 py-4 font-semibold text-blue-600 border-b-2 border-blue-600">Rolodex</button>
-        <button onclick="showTab('brief')" id="tab-brief" class="tab-btn px-4 py-4 font-semibold text-gray-600">Brief</button>
-        <button onclick="showTab('notes')" id="tab-notes" class="tab-btn px-4 py-4 font-semibold text-gray-600">Notes</button>
-      </div>
-    </div>
-
-    <!-- ROLODEX TAB -->
-    <div id="rolodex-tab" class="max-w-6xl mx-auto px-6 py-8">
-      <div class="bg-white rounded-lg shadow p-6 mb-8">
-        <div class="flex gap-4 mb-6">
-          <input id="search" placeholder="Search contacts..." class="flex-1 p-3 border rounded-lg">
-          <button onclick="showAddForm()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700">+ Add</button>
+  <div id="form" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-8 rounded-lg shadow-2xl max-w-md w-full mx-8">
+      <h2 class="text-2xl font-bold mb-6">Add Contact</h2>
+      <form onsubmit="saveContact(); return false;">
+        <input id="name" placeholder="Name *" class="w-full p-3 border rounded-lg mb-4" required>
+        <input id="org" placeholder="Organization" class="w-full p-3 border rounded-lg mb-4">
+        <input id="role" placeholder="Role" class="w-full p-3 border rounded-lg mb-4">
+        <input id="email" type="email" placeholder="Email" class="w-full p-3 border rounded-lg mb-4">
+        <input id="beats" placeholder="Beats (CCS, Batteries)" class="w-full p-3 border rounded-lg mb-4">
+        <textarea id="notes" placeholder="Notes" class="w-full p-3 border rounded-lg mb-4" rows="3"></textarea>
+        <div class="flex gap-4">
+          <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold">Save</button>
+          <button type="button" onclick="hideForm()" class="flex-1 bg-gray-300 py-3 rounded-lg">Cancel</button>
         </div>
-      </div>
-      <div class="bg-white rounded-lg shadow overflow-auto max-h-[70vh]">
-        <table class="w-full">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="p-4 text-left font-semibold text-sm">Name</th>
-              <th class="p-4 text-left font-semibold text-sm">Org</th>
-              <th class="p-4 text-left font-semibold text-sm">Role</th>
-              <th class="p-4 text-left font-semibold text-sm">Email</th>
-              <th class="p-4 text-left font-semibold text-sm">Beats</th>
-            </tr>
-          </thead>
-          <tbody id="contacts"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ADD FORM -->
-    <div id="add-form" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 hidden">
-      <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <h2 class="text-2xl font-bold mb-6">Add Contact</h2>
-        <div class="space-y-4">
-          <input id="add-name" placeholder="Name *" class="w-full p-3 border rounded-lg" required>
-          <input id="add-org" placeholder="Organization" class="w-full p-3 border rounded-lg">
-          <input id="add-role" placeholder="Role" class="w-full p-3 border rounded-lg">
-          <input id="add-email" placeholder="Email" class="w-full p-3 border rounded-lg">
-          <input id="add-beats" placeholder="Beats (CCS, Batteries)" class="w-full p-3 border rounded-lg">
-          <textarea id="add-notes" placeholder="Notes" class="w-full p-3 border rounded-lg" rows="3"></textarea>
-          <div class="flex gap-3">
-            <button onclick="saveContact()" class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold">Save</button>
-            <button onclick="hideAddForm()" class="flex-1 bg-gray-200 py-3 rounded-lg">Cancel</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BRIEF TAB -->
-    <div id="brief-tab" class="max-w-6xl mx-auto px-6 py-8 hidden">
-      <div class="bg-white rounded-lg shadow p-8">
-        <h2 class="text-xl font-bold mb-6">Daily Brief</h2>
-        <button onclick="runBrief()" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold">Run Brief</button>
-        <div id="brief-results" class="mt-6"></div>
-      </div>
-    </div>
-
-    <!-- NOTES TAB -->
-    <div id="notes-tab" class="max-w-6xl mx-auto px-6 py-8 hidden">
-      <div class="text-center py-12 text-gray-500">
-        <h2 class="text-2xl font-bold mb-4">Notes Workspace</h2>
-        <p>Coming soon</p>
-      </div>
+      </form>
     </div>
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxA5Y_Y1dj9uw4Q5KtaGfZ37TJQ_lvWjfoIQD36LWlmNpxzUo1gAhbMaXY13JlH4aj3/exec';
-    const USER_EMAIL = 'mattblois@gmail.com';
-    let contacts = [];
-
-    // STARTUP
+    const API = 'https://script.google.com/macros/s/AKfycbxy8Mativh8yfTPVaTDAuuxDkXUQK1XWGYnMH9tKO8Qitdx9isD98Do_-U-6BtCPVAL/exec';
+    
     loadContacts();
-
-    // TABS
-    function showTab(tab) {
-      document.querySelectorAll('[id$="-tab"]').forEach(t => t.classList.add('hidden'));
-      document.getElementById(tab + '-tab').classList.remove('hidden');
-      
-      document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.remove('text-blue-600', 'border-blue-600');
-        b.classList.add('text-gray-600');
-      });
-      document.getElementById('tab-' + tab).classList.add('text-blue-600', 'border-blue-600');
-      document.getElementById('tab-' + tab).classList.remove('text-gray-600');
-    }
-
-    // CONTACTS
+    
     async function loadContacts() {
       try {
-        const res = await fetch(`${API_URL}?action=getContacts&user=${USER_EMAIL}`);
-        if (res.ok) {
-          contacts = await res.json();
-          showContacts();
-        }
+        const res = await fetch(`${API}?action=getContacts&user=mattblois@gmail.com`);
+        const contacts = await res.json();
+        document.getElementById('contacts').innerHTML = contacts.map(c => `
+          <tr class="border-b hover:bg-gray-50">
+            <td class="p-4 font-semibold">${c.Name || ''}</td>
+            <td class="p-4">${c.Org || ''}</td>
+            <td class="p-4">${c.Role || ''}</td>
+            <td class="p-4">${c.Email || ''}</td>
+            <td class="p-4">${c.Beats || ''}</td>
+          </tr>
+        `).join('');
       } catch(e) {
         console.error('Load failed', e);
       }
     }
-
-    function showContacts() {
-      const tbody = document.getElementById('contacts');
-      tbody.innerHTML = contacts.map(c => `
-        <tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="editContact('${c.id}')">
-          <td class="p-4 font-medium">${c.Name || ''}</td>
-          <td class="p-4">${c.Org || ''}</td>
-          <td class="p-4">${c.Role || ''}</td>
-          <td class="p-4">${c.Email || ''}</td>
-          <td class="p-4">${c.Beats || ''}</td>
-        </tr>
-      `).join('');
+    
+    function showForm() {
+      document.getElementById('form').classList.remove('hidden');
     }
-
-    // ADD CONTACT
-    function showAddForm() {
-      document.getElementById('add-form').classList.remove('hidden');
+    
+    function hideForm() {
+      document.getElementById('form').classList.add('hidden');
+      document.querySelectorAll('#form input, #form textarea').forEach(el => el.value = '');
     }
-
-    function hideAddForm() {
-      document.getElementById('add-form').classList.add('hidden');
-      clearAddForm();
-    }
-
-    function clearAddForm() {
-      document.querySelectorAll('#add-form input, #add-form textarea').forEach(el => el.value = '');
-    }
-
+    
     async function saveContact() {
       const data = {
-        Name: document.getElementById('add-name').value.trim(),
-        Org: document.getElementById('add-org').value.trim(),
-        Role: document.getElementById('add-role').value.trim(),
-        Email: document.getElementById('add-email').value.trim(),
-        Beats: document.getElementById('add-beats').value.trim(),
-        Notes: document.getElementById('add-notes').value.trim(),
-        UserEmail: USER_EMAIL
+        Name: document.getElementById('name').value,
+        Org: document.getElementById('org').value,
+        Role: document.getElementById('role').value,
+        Email: document.getElementById('email').value,
+        Beats: document.getElementById('beats').value,
+        Notes: document.getElementById('notes').value,
+        UserEmail: 'mattblois@gmail.com'
       };
-
-      if (!data.Name) {
-        alert('Name required');
-        return;
-      }
-
+      
       try {
-        const res = await fetch(`${API_URL}?action=addContact&data=${encodeURIComponent(JSON.stringify(data))}`);
-        if (res.ok) {
-          hideAddForm();
-          loadContacts();
-        } else {
-          alert('Save failed');
-        }
+        await fetch(`${API}?action=addContact&data=${encodeURIComponent(JSON.stringify(data))}`);
+        hideForm();
+        loadContacts();
       } catch(e) {
-        alert('Save failed: ' + e.message);
+        alert('Save failed');
       }
-    }
-
-    // EDIT (basic)
-    function editContact(id) {
-      alert('Edit coming next phase');
-    }
-
-    // BRIEF (mock)
-    async function runBrief() {
-      document.getElementById('brief-results').innerHTML = `
-        <div class="bg-blue-50 border rounded-lg p-6">
-          <h3 class="font-bold text-lg mb-2">Battery Materials</h3>
-          <p class="text-sm text-gray-600 mb-4">Real Perplexity brief coming Phase 2</p>
-        </div>
-      `;
     }
   </script>
 </body>
