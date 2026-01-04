@@ -1,102 +1,814 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>BeatBot</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeatBot - AI Reporter Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-bg-primary: #faf9f6;
+            --color-surface: #ffffff;
+            --color-text-primary: #1a1a1a;
+            --color-text-secondary: #666666;
+            --color-primary: #2080c0;
+            --color-primary-hover: #1a6ba3;
+            --color-border: #e5e5e5;
+            --color-accent: #f0f8ff;
+        }
+
+        [data-color-scheme="dark"] {
+            --color-bg-primary: #0f0f0f;
+            --color-surface: #1a1a1a;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #aaaaaa;
+            --color-border: #333333;
+            --color-accent: #1a2a40;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--color-text-primary);
+        }
+
+        body {
+            background-color: var(--color-bg-primary);
+        }
+
+        /* Header / Nav */
+        header {
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--color-primary);
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 200ms;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-border);
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 24px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 48px;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--color-text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.6;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-image {
+            margin-top: 60px;
+            padding: 24px;
+            background: var(--color-accent);
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            max-width: 100%;
+            height: auto;
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            font-family: monospace;
+        }
+
+        /* Features Section */
+        .features {
+            max-width: 1200px;
+            margin: 100px auto 0;
+            padding: 80px 24px;
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 48px;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            padding: 24px;
+            border-radius: 12px;
+            background: var(--color-bg-primary);
+            border: 1px solid var(--color-border);
+            transition: all 200ms;
+        }
+
+        .feature-card:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(32, 128, 192, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Demo Section */
+        .demo {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 24px;
+            text-align: center;
+        }
+
+        .demo-box {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 48px 24px;
+            margin-top: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .demo-video {
+            width: 100%;
+            max-width: 600px;
+            height: 360px;
+            background: var(--color-accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin: 0 auto;
+        }
+
+        /* Testimonials Section */
+        .testimonials {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 24px;
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin-top: 40px;
+        }
+
+        .testimonial {
+            background: var(--color-bg-primary);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            transition: all 200ms;
+        }
+
+        .testimonial:hover {
+            box-shadow: 0 4px 12px rgba(32, 128, 192, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .testimonial-text {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: var(--color-text-primary);
+        }
+
+        .testimonial-author {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--color-text-primary);
+        }
+
+        .testimonial-title {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-top: 4px;
+        }
+
+        .mock-badge {
+            display: inline-block;
+            background: #fff4e6;
+            color: #8b6914;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            margin-top: 40px;
+        }
+
+        .price-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: left;
+            transition: all 200ms;
+        }
+
+        .price-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 12px 24px rgba(32, 128, 192, 0.1);
+        }
+
+        .price-card.featured {
+            border-color: var(--color-primary);
+            box-shadow: 0 12px 24px rgba(32, 128, 192, 0.15);
+            transform: scale(1.02);
+        }
+
+        .plan-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .plan-price {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .plan-price-note {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--color-border);
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .plan-features li:before {
+            content: "✓ ";
+            color: var(--color-primary);
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            padding: 40px 24px;
+            text-align: center;
+            color: var(--color-text-secondary);
+            font-size: 13px;
+        }
+
+        /* Modal / Auth */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--color-surface);
+            padding: 40px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .modal-close:hover {
+            color: var(--color-text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(32, 128, 192, 0.1);
+        }
+
+        .modal h2 {
+            font-size: 24px;
+            margin-bottom: 24px;
+            margin-right: 24px;
+        }
+
+        .form-button {
+            width: 100%;
+            padding: 12px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 200ms;
+        }
+
+        .form-button:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .form-toggle {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+        }
+
+        .form-toggle a {
+            color: var(--color-primary);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .form-toggle a:hover {
+            text-decoration: underline;
+        }
+
+        .form-error {
+            color: #c41e3a;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .form-success {
+            color: #2ecc71;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 32px;
+            }
+
+            .hero {
+                padding: 60px 20px;
+            }
+
+            .features,
+            .demo,
+            .testimonials,
+            .pricing {
+                padding: 60px 20px;
+            }
+
+            .price-card.featured {
+                transform: scale(1);
+            }
+
+            nav {
+                padding: 12px 16px;
+            }
+
+            .nav-right {
+                gap: 8px;
+            }
+
+            .btn {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 p-8">
-  <div class="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-8">
-    <h1 class="text-3xl font-bold mb-8">BeatBot Rolodex</h1>
-    
-    <button onclick="showForm()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold mb-6 hover:bg-blue-700">
-      + Add Contact
-    </button>
-    
-    <div class="overflow-auto max-h-96 border rounded-lg">
-      <table class="w-full border-collapse">
-        <thead>
-          <tr class="bg-gray-200">
-            <th class="p-4 text-left font-semibold">Name</th>
-            <th class="p-4 text-left font-semibold">Org</th>
-            <th class="p-4 text-left font-semibold">Role</th>
-            <th class="p-4 text-left font-semibold">Email</th>
-            <th class="p-4 text-left font-semibold">Beats</th>
-          </tr>
-        </thead>
-        <tbody id="contacts"></tbody>
-      </table>
-    </div>
-  </div>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">BeatBot</div>
+            <div class="nav-right">
+                <button class="btn btn-secondary" onclick="openLoginModal()">Login</button>
+                <button class="btn btn-primary" onclick="openSignupModal()">Sign Up</button>
+            </div>
+        </nav>
+    </header>
 
-  <div id="form" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-    <div class="bg-white p-8 rounded-lg shadow-2xl max-w-md w-full mx-8">
-      <h2 class="text-2xl font-bold mb-6">Add Contact</h2>
-      <form onsubmit="saveContact(); return false;">
-        <input id="name" placeholder="Name *" class="w-full p-3 border rounded-lg mb-4" required>
-        <input id="org" placeholder="Organization" class="w-full p-3 border rounded-lg mb-4">
-        <input id="role" placeholder="Role" class="w-full p-3 border rounded-lg mb-4">
-        <input id="email" type="email" placeholder="Email" class="w-full p-3 border rounded-lg mb-4">
-        <input id="beats" placeholder="Beats (CCS, Batteries)" class="w-full p-3 border rounded-lg mb-4">
-        <textarea id="notes" placeholder="Notes" class="w-full p-3 border rounded-lg mb-4" rows="3"></textarea>
-        <div class="flex gap-4">
-          <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold">Save</button>
-          <button type="button" onclick="hideForm()" class="flex-1 bg-gray-300 py-3 rounded-lg">Cancel</button>
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Your Rolodex Finds the Scoops</h1>
+        <p class="hero-subtitle">BeatBot surfaces the stories hiding in your contacts. Upload your Rolodex, get daily briefings with exclusive angles—before anyone else publishes.</p>
+        <div class="cta-group">
+            <button class="btn btn-primary" onclick="openSignupModal()">Start Free Trial</button>
+            <button class="btn btn-secondary" onclick="document.querySelector('.demo').scrollIntoView()">See Demo</button>
         </div>
-      </form>
-    </div>
-  </div>
+        <div class="hero-image">
+            📊 Rolodex Enrichment + Daily Briefs + Story Tracking—All in One
+        </div>
+    </section>
 
-  <script>
-    const API = 'https://script.google.com/macros/s/AKfycbxy8Mativh8yfTPVaTDAuuxDkXUQK1XWGYnMH9tKO8Qitdx9isD98Do_-U-6BtCPVAL/exec';
-    
-    loadContacts();
-    
-    async function loadContacts() {
-      try {
-        const res = await fetch(`${API}?action=getContacts&user=mattblois@gmail.com`);
-        const contacts = await res.json();
-        document.getElementById('contacts').innerHTML = contacts.map(c => `
-          <tr class="border-b hover:bg-gray-50">
-            <td class="p-4 font-semibold">${c.Name || ''}</td>
-            <td class="p-4">${c.Org || ''}</td>
-            <td class="p-4">${c.Role || ''}</td>
-            <td class="p-4">${c.Email || ''}</td>
-            <td class="p-4">${c.Beats || ''}</td>
-          </tr>
-        `).join('');
-      } catch(e) {
-        console.error('Load failed', e);
-      }
-    }
-    
-    function showForm() {
-      document.getElementById('form').classList.remove('hidden');
-    }
-    
-    function hideForm() {
-      document.getElementById('form').classList.add('hidden');
-      document.querySelectorAll('#form input, #form textarea').forEach(el => el.value = '');
-    }
-    
-    async function saveContact() {
-      const data = {
-        Name: document.getElementById('name').value,
-        Org: document.getElementById('org').value,
-        Role: document.getElementById('role').value,
-        Email: document.getElementById('email').value,
-        Beats: document.getElementById('beats').value,
-        Notes: document.getElementById('notes').value,
-        UserEmail: 'mattblois@gmail.com'
-      };
-      
-      try {
-        await fetch(`${API}?action=addContact&data=${encodeURIComponent(JSON.stringify(data))}`);
-        hideForm();
-        loadContacts();
-      } catch(e) {
-        alert('Save failed');
-      }
-    }
-  </script>
+    <!-- Features Section -->
+    <section class="features">
+        <h2 class="section-title">How BeatBot Works</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>Enrich Your Rolodex</h3>
+                <p>Upload your contacts. AI automatically fills in emails, LinkedIn profiles, expertise tags, and source types. Confidence-scored: High, Medium, Low.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📰</div>
+                <h3>Daily Briefs</h3>
+                <p>Every morning, get curated story ideas from your Rolodex. BeatBot scans newsrooms, LinkedIn, SEC filings, and beyond—surfacing scoops first.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📌</div>
+                <h3>Track Stories</h3>
+                <p>Monitor how many times each contact and company appear in your coverage. Never miss a beat. Link interviews, transcripts, and notes.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Smart Filtering</h3>
+                <p>Filter by beat, geography, source type, and custom keywords. Calibrate your briefs: skim or deep dive. Only what matters.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Fast Research</h3>
+                <p>Stop scrolling LinkedIn and newsroom pages manually. BeatBot does it for you. Save 10+ hours per week on source scanning.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Onboarding Magic</h3>
+                <p>Connect your Muck Rack or upload your contacts. BeatBot learns your beat in minutes. Customize topics, keywords, and preferences instantly.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section class="demo">
+        <h2 class="section-title">See It In Action</h2>
+        <div class="demo-box">
+            <div class="demo-video">🎬 Video demo coming soon. Upload Rolodex → Get brief in 60 seconds.</div>
+        </div>
+        <p style="margin-top: 20px; color: var(--color-text-secondary); font-size: 14px;">Minimal setup, maximum insights. Sign up for early access.</p>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+        <h2 class="section-title">What Reporters Are Saying</h2>
+        <div class="testimonial-grid">
+            <div class="testimonial">
+                <div class="testimonial-text">"BeatBot found 3 exclusive story angles in my clean tech coverage that I would have missed. Saved me hours researching sources."</div>
+                <div class="testimonial-author">Sarah Chen</div>
+                <div class="testimonial-title">Energy Reporter, TechNews Daily</div>
+                <div class="mock-badge">Mock Customer</div>
+            </div>
+            <div class="testimonial">
+                <div class="testimonial-text">"I upload my contacts once and get briefed daily. No more manual LinkedIn scrolling. BeatBot is a superpower for freelancers like me."</div>
+                <div class="testimonial-author">Marcus Johnson</div>
+                <div class="testimonial-title">Freelance Tech Writer</div>
+                <div class="mock-badge">Mock Customer</div>
+            </div>
+            <div class="testimonial">
+                <div class="testimonial-text">"Our team uses BeatBot for beat coordination. We see what each reporter's contacts are doing. Perfect for assigning stories and avoiding duplicates."</div>
+                <div class="testimonial-author">Dr. Amir Patel</div>
+                <div class="testimonial-title">Deputy Editor, Climate Insights</div>
+                <div class="mock-badge">Mock Customer</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing">
+        <h2 class="section-title">Simple, Transparent Pricing</h2>
+        <div class="pricing-grid">
+            <div class="price-card">
+                <div class="plan-name">Free</div>
+                <div class="plan-price">$0</div>
+                <div class="plan-price-note">Forever free</div>
+                <ul class="plan-features">
+                    <li>Up to 100 contacts</li>
+                    <li>1 brief per week</li>
+                    <li>Basic enrichment</li>
+                    <li>Email support</li>
+                </ul>
+                <button class="btn btn-secondary" onclick="openSignupModal()" style="width: 100%;">Get Started</button>
+            </div>
+            <div class="price-card featured">
+                <div class="plan-name">Pro</div>
+                <div class="plan-price">$29</div>
+                <div class="plan-price-note">per month, billed annually</div>
+                <ul class="plan-features">
+                    <li>Unlimited contacts</li>
+                    <li>Daily briefs</li>
+                    <li>Full AI enrichment</li>
+                    <li>Advanced filtering</li>
+                    <li>Story tracking</li>
+                    <li>Export & integrations</li>
+                </ul>
+                <button class="btn btn-primary" onclick="openSignupModal()" style="width: 100%;">Start Free Trial</button>
+            </div>
+            <div class="price-card">
+                <div class="plan-name">Teams</div>
+                <div class="plan-price">$99</div>
+                <div class="plan-price-note">per user/month</div>
+                <ul class="plan-features">
+                    <li>Everything in Pro</li>
+                    <li>Team Rolodex sharing</li>
+                    <li>Role-based access</li>
+                    <li>Shared briefings</li>
+                    <li>Priority support</li>
+                </ul>
+                <button class="btn btn-secondary" onclick="alert('Contact sales for teams plan')" style="width: 100%;">Contact Sales</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 BeatBot. Helping journalists scoop the world, one Rolodex at a time.</p>
+        <p style="margin-top: 16px;">Made by reporters, for reporters. | <a href="#" style="color: var(--color-text-secondary);">Privacy</a> | <a href="#" style="color: var(--color-text-secondary);">Terms</a></p>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeLoginModal()">✕</button>
+            <h2>Welcome Back</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+                </div>
+                <div id="loginError"></div>
+                <button type="submit" class="form-button">Login</button>
+            </form>
+            <div class="form-toggle">
+                Don't have an account? <a onclick="switchToSignup()">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal" id="signupModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeSignupModal()">✕</button>
+            <h2>Get Started Free</h2>
+            <form id="signupForm" onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="signupName" class="form-input" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="signupEmail" class="form-input" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="signupPassword" class="form-input" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Publication / Beat</label>
+                    <input type="text" id="signupBeat" class="form-input" placeholder="e.g., Clean Tech, Politics">
+                </div>
+                <div id="signupError"></div>
+                <div id="signupSuccess"></div>
+                <button type="submit" class="form-button">Create Account</button>
+            </form>
+            <div class="form-toggle">
+                Already have an account? <a onclick="switchToLogin()">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal Functions
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+            document.getElementById('signupModal').classList.remove('active');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+        }
+
+        function openSignupModal() {
+            document.getElementById('signupModal').classList.add('active');
+            document.getElementById('loginModal').classList.remove('active');
+        }
+
+        function closeSignupModal() {
+            document.getElementById('signupModal').classList.remove('active');
+        }
+
+        function switchToSignup() {
+            closeLoginModal();
+            openSignupModal();
+        }
+
+        function switchToLogin() {
+            closeSignupModal();
+            openLoginModal();
+        }
+
+        // Close modal on outside click
+        document.addEventListener('click', function(event) {
+            const loginModal = document.getElementById('loginModal');
+            const signupModal = document.getElementById('signupModal');
+            if (event.target === loginModal) {
+                closeLoginModal();
+            }
+            if (event.target === signupModal) {
+                closeSignupModal();
+            }
+        });
+
+        // Placeholder Form Handlers (integrate with Supabase + Stripe)
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // TODO: Integrate Supabase Auth
+            // supabase.auth.signInWithPassword({ email, password })
+            
+            console.log('Login:', { email, password });
+            document.getElementById('loginError').innerHTML = '<div class="form-success">✓ Login would process here (Supabase integration needed)</div>';
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const beat = document.getElementById('signupBeat').value;
+            
+            // TODO: Integrate Supabase + Stripe
+            // supabase.auth.signUp({ email, password, options: { data: { name, beat } } })
+            // Then redirect to Stripe Checkout for Pro upgrade
+            
+            console.log('Signup:', { name, email, beat });
+            document.getElementById('signupSuccess').innerHTML = '<div class="form-success">✓ Account created! (Redirect to Stripe Payment Link)</div>';
+            setTimeout(() => {
+                // window.location.href = 'https://checkout.stripe.com/pay/...';
+            }, 1500);
+        }
+    </script>
 </body>
 </html>
